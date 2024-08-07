@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/AppStore" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-AppManagement" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-AppStore" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-Gateway" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-LocalStorage" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-MessageBus" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-UI" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-UserService" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/mesh-router" vcs="Git" />
+  </component>
+</project>

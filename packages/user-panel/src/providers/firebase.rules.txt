@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+match /databases/{database}/documents {
+
+    // Match any document in the users collection
+    match /users/{userId} {
+      // Allow read and write access to the owner of the document
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Specific rules for the /names collection
+    match /names/{documentId} {
+      // Allow read access to all authenticated users
+      allow read: if request.auth != null;
+
+      // Allow write access only under certain conditions
+      allow write: if request.auth != null && (
+        // Allow creation if the document does not exist yet
+        request.method == "create" || 
+        // When creating, the userId must be set to the authenticated user's uid
+        request.resource.data.userId == request.auth.uid
+      );
+    }
+
+}
+}

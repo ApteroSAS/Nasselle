@@ -1,11 +1,11 @@
 [submodule "packages/casa-img"]
 	path = packages/casa-img
-	url = git@github.com:Metazla/casa-img.git
+	url = git@github.com:Worph/casa-img.git
 	branch = main
 [submodule "packages/mesh-router"]
 	path = packages/mesh-router
-	url = git@github.com:Metazla/meta-router.git
+	url = git@github.com:Worph/meta-router.git
 	branch = main
 [submodule "packages/AppStore"]
 	path = packages/AppStore
-	url = git@github.com:Metazla/Metazla-AppStore.git
+	url = git@github.com:Worph/AppStore.git
