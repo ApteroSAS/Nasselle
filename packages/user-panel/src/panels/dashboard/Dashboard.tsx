@@ -4,7 +4,7 @@ import {ResourceKey} from "../../App/UsersResource";
 import {useDataProvider} from "react-admin";
 import {useUserIdentity} from "../../App/user/UserIdentity";
 import {domainSuffix} from "../../configuration/WorkConfiguration";
-import {GettingStarted} from "./GettingStarted";
+import {GettingStarted} from "../../components/GettingStarted";
 
 const styles = {
   container: {

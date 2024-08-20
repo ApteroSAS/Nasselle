@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import {GettingStarted} from "../dashboard/GettingStarted";
+import {GettingStarted} from "../../components/GettingStarted";
 
 export const SupportPanel = () => {
     return <GettingStarted />

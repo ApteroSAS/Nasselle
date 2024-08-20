@@ -1,12 +1,13 @@
 import { defaultTheme } from 'react-admin';
 
+// @ts-ignore
 /**
  * Soft: A gentle theme for apps with rich content (images, charts, maps, etc).
  *
  * Uses white app bar, rounder corners, light colors.
  */
 
-export const softDarkTheme = {
+export const softDarkTheme:any = {
     palette: {
         primary: {
             main: '#90caf9',

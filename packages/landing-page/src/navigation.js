@@ -58,7 +58,7 @@ export const headerData = {
       href: getPermalink('/pricing'),
     },
   ],
-  actions: [{ text: 'Open Nasselle', href: getPermalink('/app'), target: '_blank' }],
+  actions: [{ text: 'Dashboard', href: getPermalink('/dashboard'), target: '_blank' }],
 };
 
 export const footerData = {

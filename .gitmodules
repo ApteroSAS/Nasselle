@@ -1,11 +1,11 @@
 [submodule "packages/casa-img"]
 	path = packages/casa-img
-	url = git@github.com:Worph/casa-img.git
+	url = https://github.com/worph/casa-img.git
 	branch = main
 [submodule "packages/mesh-router"]
 	path = packages/mesh-router
-	url = git@github.com:Worph/meta-router.git
+	url = https://github.com/worph/meta-router.git
 	branch = main
 [submodule "packages/AppStore"]
 	path = packages/AppStore
-	url = git@github.com:Worph/AppStore.git
+	url = https://github.com/worph/AppStore.git
