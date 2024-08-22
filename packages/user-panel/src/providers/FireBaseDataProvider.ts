@@ -1,4 +1,5 @@
 import {FirebaseDataProvider} from "react-admin-firebase";
-import {firebaseConfig, options} from "../configuration/FireBaseConfiguration";
+import {options} from "../configuration/FireBaseOptions";
+import {firebaseConfig} from "../configuration/FirebaseConfig";
 
 export const firebaseDataProvider = FirebaseDataProvider(firebaseConfig, options);

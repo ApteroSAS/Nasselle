@@ -4,6 +4,14 @@
     "private": true,
     "type": "module",
     "packageManager": "pnpm@9.7.1",
+    "scripts": {
+        "dev": "vite",
+        "start": "vite",
+        "build": "tsc && vite build",
+        "type-check": "tsc",
+        "preview": "vite preview",
+        "publish": "npx wavepush publish"
+    },
     "dependencies": {
         "@apollo/client": "^3.3.19",
         "@libp2p/crypto": "^4.1.8",
@@ -45,21 +53,12 @@
         "react-router-dom": "^6.22.0",
         "recharts": "^2.1.15"
     },
-    "scripts": {
-        "dev": "vite",
-        "start": "vite",
-        "build": "tsc && vite build",
-        "type-check": "tsc",
-        "preview": "vite preview",
-        "publish": "npx wavepush publish"
-    },
     "devDependencies": {
         "@types/fetch-mock": "^7.3.2",
         "@types/jest": "^29.5.2",
         "@types/node": "^20.10.7",
         "@types/react": "^18.3.3",
         "@types/react-dom": "^18.3.0",
-        "@vitejs/plugin-react": "^4.2.1",
         "rewire": "^5.0.0",
         "rollup-plugin-visualizer": "^5.12.0",
         "rollup-preserve-directives": "^1.1.1",

@@ -1,14 +1,3 @@
-export const firebaseConfig = {
-    apiKey: "AIzaSyCCfqDoxClElR1eTSe1WK0FOfOhCmxQGkY",
-    authDomain: "aptero-c7265.firebaseapp.com",
-    databaseURL: "https://aptero-c7265-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "aptero-c7265",
-    storageBucket: "aptero-c7265.appspot.com",
-    messagingSenderId: "979292214197",
-    appId: "1:979292214197:web:dd1e13d0a634dace223ffc",
-    measurementId: "G-MFP20ZKQ00"
-};
-
 // All options are optional
 export const options: any = {
     // Use a different root document to set your resource collections, by default it uses the root collections of firestore

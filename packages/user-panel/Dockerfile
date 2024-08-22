@@ -1,4 +1,4 @@
-FROM node:20-slim AS build
+FROM node:lts AS build
 #https://pnpm.io/docker
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"

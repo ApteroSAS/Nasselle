@@ -2,7 +2,7 @@ import React, { useState, useEffect, FC } from 'react';
 import { Button, Paper, Typography, TextField, CircularProgress, Alert } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { generateKeyPair } from "./KeyPairGeneration";
+import { generateKeyPair } from "../../library/KeyLib";
 import { ResourceKey } from '../../App/UsersResource';
 import { useDataProvider, useNotify } from "react-admin";
 import { useUserIdentity } from "../../App/user/UserIdentity";

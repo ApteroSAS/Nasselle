@@ -1,5 +1,5 @@
 import {FirebaseAuthProvider} from 'react-admin-firebase';
-import {firebaseConfig, options} from "../configuration/FireBaseConfiguration";
+import {options} from "../configuration/FireBaseOptions";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth";
 import { AuthProvider } from 'react-admin';
 
@@ -7,6 +7,7 @@ import { AuthProvider } from 'react-admin';
 // Initialize Firebase
 import {initializeApp} from "firebase/app";
 import {firebaseDataProvider} from "./FireBaseDataProvider";
+import {firebaseConfig} from "../configuration/FirebaseConfig";
 
 export const app = initializeApp(firebaseConfig);
 
