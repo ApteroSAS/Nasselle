@@ -1,6 +1,6 @@
 import React from 'react';
-import {NameManagement} from './NameManagement';
-import {KeyManagement} from './KeyManagement';
+import {NameManagement} from '../../components/NameManagement';
+import {KeyManagement} from '../../components/KeyManagement';
 
 export const KeyPanel = () => {
   return (

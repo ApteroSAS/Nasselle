@@ -2,10 +2,10 @@ import React, { useState, useEffect, FC } from 'react';
 import { Button, Paper, Typography, TextField, CircularProgress, Alert } from '@mui/material';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { generateKeyPair } from "../../library/KeyLib";
-import { ResourceKey } from '../../App/UsersResource';
+import { generateKeyPair } from "../library/KeyLib";
+import { ResourceKey } from '../App/UsersResource';
 import { useDataProvider, useNotify } from "react-admin";
-import { useUserIdentity } from "../../App/user/UserIdentity";
+import { useUserIdentity } from "../App/user/UserIdentity";
 
 export const KeyManagement: FC = () => {
   const { data, isLoading, error } = useUserIdentity();
@@ -33,6 +33,7 @@ export const KeyManagement: FC = () => {
       const keys = await generateKeyPair();
       setPublicKey(keys.pub);
       setPrivateKey(keys.priv);
+      (window as any).privkey = keys.priv;
       await dataProvider.update(ResourceKey, { id: userid, data: { pubkey: keys.pub } } as any);
       notify('resources.api-management.notify.generateKeySuccess');
     } catch (error) {

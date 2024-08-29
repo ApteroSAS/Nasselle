@@ -3,9 +3,9 @@ import { TextField, Button, Paper, Typography, Select, MenuItem, FormControl, In
 import SaveIcon from '@mui/icons-material/Save';
 import EmojiFlagsIcon from '@mui/icons-material/EmojiFlags';
 import { useDataProvider, useNotify } from 'react-admin';
-import { ResourceKey } from "../../App/UsersResource";
-import { useUserIdentity } from "../../App/user/UserIdentity";
-import {domainsSuffix} from "../../configuration/WorkConfiguration";
+import { ResourceKey } from "../App/UsersResource";
+import { useUserIdentity } from "../App/user/UserIdentity";
+import {domainsSuffix} from "../configuration/WorkConfiguration";
 
 export const NameManagement: FC = () => {
   const [name, setName] = useState('');
