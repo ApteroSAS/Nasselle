@@ -1,26 +1,11 @@
 import {Box, Button, Paper, Typography} from "@mui/material";
 import React from "react";
-import {useNavigate} from "react-router-dom";
 import {DockerSetup} from "./DockerSetUp";
 import {NameManagement} from "./NameManagement";
 import {KeyManagement} from "./KeyManagement";
 import {EntryPointLink} from "./EntryPointLink";
 
 const styles = {
-    container: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: '#f5f5f5',
-        padding: '1em'
-    } as React.CSSProperties,
-    paper: {
-        padding: '2em',
-        maxWidth: '800px',
-        backgroundColor: '#fff',
-        boxShadow: '0px 0px 10px rgba(0,0,0,0.1)',
-        borderRadius: '8px'
-    } as React.CSSProperties,
     stepBox: {
         marginBottom: '1.5em',
         padding: '1em',
@@ -67,7 +52,7 @@ const StepNameClaim = () => (
             accessing
             and managing your NAS online.
         </Typography>
-        <NameManagement />
+        <NameManagement/>
     </Box>
 );
 
@@ -76,7 +61,7 @@ const StepAPISetup = () => (
         <Typography variant="h6" style={styles.stepTitle}>
             🐳 create API token
         </Typography>
-        <KeyManagement />
+        <KeyManagement/>
     </Box>
 );
 
@@ -99,18 +84,14 @@ const StepAccess = () => (
 );
 
 export const GettingStarted = () => {
-    return (
-        <div style={styles.container}>
-            <Paper style={styles.paper}>
-                <Typography variant="h4" gutterBottom>
-                    Getting Started
-                </Typography>
-                <StepDockerInstall/>
-                <StepAPISetup/>
-                <StepNameClaim/>
-                <StepDockerSetup/>
-                <StepAccess/>
-            </Paper>
-        </div>
-    );
+    return (<>
+        <Typography variant="h4" gutterBottom>
+            Getting Started
+        </Typography>
+        <StepDockerInstall/>
+        <StepAPISetup/>
+        <StepNameClaim/>
+        <StepDockerSetup/>
+        <StepAccess/>
+    </>);
 }

@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { Box, Button, CircularProgress, Paper, Typography } from '@mui/material';
-import { useDataProvider } from 'react-admin';
-import { useUserIdentity } from '../App/user/UserIdentity';
-import { domainSuffix } from '../configuration/WorkConfiguration';
-import { ResourceKey } from '../App/UsersResource';
-import { GettingStarted } from '../components/GettingStarted';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, Paper, Typography} from '@mui/material';
+import {useDataProvider, useNotify} from 'react-admin';
+import {useUserIdentity} from '../App/user/UserIdentity';
+import {ResourceKey} from '../App/UsersResource';
 
 export const EntryPointLink: React.FC = () => {
-    const [loading, setLoading] = useState(true);
-    const [domainName, setDomainName] = useState('');
     const dataProvider = useDataProvider();
-    const identity = useUserIdentity();
-    const dashboardUrl = `https://${domainName}.${domainSuffix}`;
+    const [refDomain, setRefDomain] = useState("");
+    const notify = useNotify();
+    const {data, isLoading, error} = useUserIdentity();
+    const userid = data?.id;
 
     useEffect(() => {
-        if (identity.isLoading) return;
-
-        const fetchDomainName = async () => {
+        if (isLoading) return;
+        if (!userid) return;
+        const loadProviderDetails = async () => {
             try {
-                const userData = await dataProvider.getOne<any>(ResourceKey, { id: identity.data.id } as any);
-                setDomainName(userData.data.domainName);
-            } finally {
-                setLoading(false);
+                const response = await dataProvider.getOne(ResourceKey, {id: userid});
+                const {domainName, serverDomain} = response.data;
+                setRefDomain(`${domainName}.${serverDomain}`);
+            } catch (error) {
+                console.error("Failed to fetch provider details:", error);
+                notify('Failed to fetch provider details', {type: 'error'});
             }
         };
 
-        fetchDomainName();
-    }, [identity, dataProvider]);
+        loadProviderDetails();
+    }, [userid, isLoading]);
 
     const styles = {
         paper: {
@@ -47,36 +47,28 @@ export const EntryPointLink: React.FC = () => {
     };
 
     return (
-        <Paper style={styles.paper}>
-            {loading ? (
-                <CircularProgress />
-            ) : domainName ? (
-                <div>
-                    <Typography variant="h4" gutterBottom>
-                        🌐 Your domain is set up! You can check your dashboard at:
-                    </Typography>
-                    <Box style={styles.domainBox}>
-                        <Typography variant="h6" gutterBottom>
-                            {dashboardUrl}
-                        </Typography>
-                    </Box>
-                    <br />
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={() => {
-                            const newTab = window.open(dashboardUrl, '_blank');
-                            if (newTab) {
-                                newTab.focus();
-                            }
-                        }}
-                    >
-                        Visit Dashboard
-                    </Button>
-                </div>
-            ) : (
-                <GettingStarted />
-            )}
-        </Paper>
+        <div>
+            <Typography variant="h4" gutterBottom>
+                🌐 Your domain is set up! You can check your dashboard at:
+            </Typography>
+            <Box style={styles.domainBox}>
+                <Typography variant="h6" gutterBottom>
+                    {refDomain}
+                </Typography>
+            </Box>
+            <br/>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={() => {
+                    const newTab = window.open(`https://${refDomain}`, '_blank');
+                    if (newTab) {
+                        newTab.focus();
+                    }
+                }}
+            >
+                Visit Dashboard
+            </Button>
+        </div>
     );
 };

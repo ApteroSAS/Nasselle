@@ -13,10 +13,12 @@ export const app = initializeApp(firebaseConfig);
 
 const fbauthProvider = FirebaseAuthProvider(firebaseConfig, options);
 const authProviderCopy = {...fbauthProvider}
+export const auth = getAuth();
+
 authProviderCopy.registerUser = async (email: string, password: string) => {
-  const auth = getAuth();
   return await createUserWithEmailAndPassword(auth, email, password);
 }
+
 authProviderCopy.getIdentity = async () => {
   const user = await fbauthProvider.getIdentity();
   console.log("id",user);
@@ -29,6 +31,12 @@ authProviderCopy.getIdentity = async () => {
   }
 
 }
+
+
+export async function getUserToken() {
+  return  await auth.currentUser.getIdToken(true);
+}
+
 export const authProvider = authProviderCopy;
 
 /*export const authProvider: AuthProvider = {
@@ -58,4 +66,3 @@ export const authProvider = authProviderCopy;
     return test;
   }
 };*/
-
