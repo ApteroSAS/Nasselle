@@ -8,11 +8,9 @@ import {ResourceKey} from "../../App/UsersResource";
 import {CircularProgress} from "@mui/material";
 import {EntryPointLink} from "../../components/EntryPointLink";
 import {Intro} from "../../components/Intro";
-import {GettingStartedHWNas} from "../hw-nas/GettingStartedHWNas";
-import {GettingStartedVNas} from "./GettingStartedVNas";
-import {VNasComponent} from "./VNasComponent";
+import {GettingStartedHWNas} from "./GettingStartedHWNas";
 
-export const VNasPanel = () => {
+export const HWNasPanel = () => {
     const [loading, setLoading] = useState(true);
     const [domainName, setDomainName] = useState('');
     const dataProvider = useDataProvider();
@@ -35,7 +33,10 @@ export const VNasPanel = () => {
 
     return (
         <PageContainer>
-            {loading ? <CircularProgress/> : domainName ? <VNasComponent/> : <GettingStartedVNas/>}
+            {loading ? <CircularProgress/> : domainName ? <>
+                <NameManagement/>
+                <KeyManagement/>
+            </> : <GettingStartedHWNas/>}
         </PageContainer>
     );
 };

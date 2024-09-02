@@ -1,6 +1,4 @@
 import { defineConfig } from 'vite';
-import path from 'path';
-import fs from 'fs';
 import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import preserveDirectives from 'rollup-preserve-directives';
@@ -8,6 +6,10 @@ import preserveDirectives from 'rollup-preserve-directives';
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
     return {
+        test: {
+            globals: true,
+            environment: 'jsdom',
+        },
         plugins: [
             react(),
             visualizer({

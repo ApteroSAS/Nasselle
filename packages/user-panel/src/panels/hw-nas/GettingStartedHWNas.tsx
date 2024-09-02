@@ -1,9 +1,9 @@
 import {Box, Button, Paper, Typography} from "@mui/material";
 import React from "react";
-import {DockerSetup} from "./DockerSetUp";
-import {NameManagement} from "./NameManagement";
-import {KeyManagement} from "./KeyManagement";
-import {EntryPointLink} from "./EntryPointLink";
+import {DockerSetup} from "../../components/DockerSetUp";
+import {NameManagement} from "../../components/NameManagement";
+import {KeyManagement} from "../../components/KeyManagement";
+import {EntryPointLink} from "../../components/EntryPointLink";
 
 const styles = {
     stepBox: {
@@ -83,7 +83,7 @@ const StepAccess = () => (
     </Box>
 );
 
-export const GettingStarted = () => {
+export const GettingStartedHWNas = () => {
     return (<>
         <Typography variant="h4" gutterBottom>
             Getting Started

@@ -10,6 +10,7 @@ import {domainsSuffix} from "../configuration/WorkConfiguration";
 export const NameManagement: FC = () => {
   const [name, setName] = useState('');
   const [serverDomain, setServerDomain] = useState('');
+  const [needSave, setNeedSave] = useState(false);
   const dataProvider = useDataProvider();
   const notify = useNotify();
   const { data, isLoading, error } = useUserIdentity();
@@ -42,6 +43,7 @@ export const NameManagement: FC = () => {
         console.error('Failed to save name:', error);
         notify('resources.api-management.notify.saveError', { type: 'error' });
       }
+      setNeedSave(false);
     } else {
       notify('resources.api-management.notify.fillFields', { type: 'warning' });
     }
@@ -53,12 +55,16 @@ export const NameManagement: FC = () => {
   return (
     <Paper style={{ padding: '20px', marginBottom: '20px' }}>
       <Typography variant="h4" color="secondary"><EmojiFlagsIcon /> Claim Name</Typography>
+      <Typography>Here you can claim the domain name that you will use to connect to your NAS or V-NAS</Typography>
       <TextField
         label="Name"
         variant="outlined"
         fullWidth
         value={name}
-        onChange={e => setName(e.target.value)}
+        onChange={e => {
+          setName(e.target.value)
+            setNeedSave(true)
+        }}
         color="primary"
         style={{ marginBottom: '20px' }}
       />
@@ -68,7 +74,10 @@ export const NameManagement: FC = () => {
           labelId="server-domain-label"
           value={serverDomain}
           label="Server Domain"
-          onChange={e => setServerDomain(e.target.value)}
+          onChange={e => {
+            setServerDomain(e.target.value)
+            setNeedSave(true)
+          }}
         >
           {domainsSuffix.map((domain) => (
             <MenuItem key={domain} value={domain}>
@@ -77,14 +86,15 @@ export const NameManagement: FC = () => {
           ))}
         </Select>
       </FormControl>
-      <Button
+      {needSave && <Button
         startIcon={<SaveIcon />}
+        fullWidth
         variant="contained"
-        color="primary"
+        color="success"
         onClick={handleSaveName}
       >
-        Save Name
-      </Button>
+        Claim {`${name}.${serverDomain}`}
+      </Button>}
     </Paper>
   );
 };

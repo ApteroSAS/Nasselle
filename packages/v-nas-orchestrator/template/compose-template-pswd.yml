@@ -14,9 +14,9 @@ services:
       - DATA_ROOT=%USER_DATA_FOLDER%
       - REF_NET=%NETWORK%
       - REF_DOMAIN=%DOMAIN%
+      - USER=%USER%
     volumes:
       - %USER_DATA_FOLDER%:/DATA
-      - %USER_DATA_FOLDER%:%USER_DATA_FOLDER%
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - %NETWORK%

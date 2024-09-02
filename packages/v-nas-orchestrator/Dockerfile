@@ -1,4 +1,8 @@
 FROM node:lts AS base
+
+# install docker https://docs.docker.com/engine/install/ubuntu/
+RUN curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
@@ -18,5 +22,6 @@ RUN pnpm run build
 FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
 COPY --from=build /app/dist /app/dist
-EXPOSE 8192
+COPY ./template /app/template
+EXPOSE 8194
 CMD [ "node", "/app/dist" ]

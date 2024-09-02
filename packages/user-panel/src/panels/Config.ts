@@ -1,5 +1,5 @@
 import {PanelInterface} from "./PanelInterface";
-import {keyPanel} from "./key-panel/Config";
+import {keyPanel} from "./hw-nas/Config";
 import {supportPanel} from "./support/Config";
 import {vnasPanel} from "./v-nas/Config";
 

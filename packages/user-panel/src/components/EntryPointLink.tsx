@@ -6,7 +6,8 @@ import {ResourceKey} from '../App/UsersResource';
 
 export const EntryPointLink: React.FC = () => {
     const dataProvider = useDataProvider();
-    const [refDomain, setRefDomain] = useState("");
+    const [refDomain, setRefDomain] = useState<string>("");
+    const [vnas, setVnas] = useState<string>("");
     const notify = useNotify();
     const {data, isLoading, error} = useUserIdentity();
     const userid = data?.id;
@@ -17,8 +18,11 @@ export const EntryPointLink: React.FC = () => {
         const loadProviderDetails = async () => {
             try {
                 const response = await dataProvider.getOne(ResourceKey, {id: userid});
-                const {domainName, serverDomain} = response.data;
-                setRefDomain(`${domainName}.${serverDomain}`);
+                const {domainName, serverDomain,vnas} = response.data;
+                if (domainName && serverDomain) {
+                    setRefDomain(`${domainName}.${serverDomain}`);
+                }
+                setVnas(vnas);
             } catch (error) {
                 console.error("Failed to fetch provider details:", error);
                 notify('Failed to fetch provider details', {type: 'error'});
@@ -46,12 +50,15 @@ export const EntryPointLink: React.FC = () => {
         } as React.CSSProperties,
     };
 
-    return (
-        <div>
+    return (<>{refDomain && <div>
             <Typography variant="h4" gutterBottom>
-                🌐 Your domain is set up! You can check your dashboard at:
+                🌐 Everything is ready! Access your dashboard
             </Typography>
             <Box style={styles.domainBox}>
+                {vnas && vnas!="setup-ok" && <Typography variant="h6" gutterBottom>
+                    Login : {vnas.split(':')[0]} <br/>
+                    Password : {vnas.split(':')[1]}
+                </Typography>}
                 <Typography variant="h6" gutterBottom>
                     {refDomain}
                 </Typography>
@@ -59,6 +66,7 @@ export const EntryPointLink: React.FC = () => {
             <br/>
             <Button
                 variant="contained"
+                fullWidth
                 color="primary"
                 onClick={() => {
                     const newTab = window.open(`https://${refDomain}`, '_blank');
@@ -69,6 +77,6 @@ export const EntryPointLink: React.FC = () => {
             >
                 Visit Dashboard
             </Button>
-        </div>
+        </div>}</>
     );
 };

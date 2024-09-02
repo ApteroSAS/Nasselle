@@ -12,4 +12,5 @@ export interface UserFB{
     pubkey?: string;
     serverDomain?: string;
     updatedby?: string;
+    vnas?: string;
 }

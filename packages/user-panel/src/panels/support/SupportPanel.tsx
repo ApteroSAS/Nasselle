@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 
-import {GettingStarted} from "../../components/GettingStarted";
+import {GettingStartedHWNas} from "../hw-nas/GettingStartedHWNas";
 import {PageContainer} from "../../components/WrapperElement";
 
 export const SupportPanel = () => {
-    return <PageContainer><GettingStarted /></PageContainer>;
+    return <PageContainer><GettingStartedHWNas /></PageContainer>;
 }

@@ -4,16 +4,16 @@ import {useDataProvider} from 'react-admin';
 import {useUserIdentity} from '../../App/user/UserIdentity';
 import {domainSuffix} from '../../configuration/WorkConfiguration';
 import {ResourceKey} from '../../App/UsersResource';
-import {GettingStarted} from '../../components/GettingStarted';
+import {GettingStartedHWNas} from '../hw-nas/GettingStartedHWNas';
 import {EntryPointLink} from "../../components/EntryPointLink";
 import {PageContainer} from "../../components/WrapperElement";
+import {Intro} from "../../components/Intro";
 
 export const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [domainName, setDomainName] = useState('');
     const dataProvider = useDataProvider();
     const identity = useUserIdentity();
-    const dashboardUrl = `https://${domainName}.${domainSuffix}`;
 
     useEffect(() => {
         if (identity.isLoading) return;
@@ -32,7 +32,7 @@ export const Dashboard: React.FC = () => {
 
     return (
         <PageContainer>
-                {loading ? <CircularProgress/> : domainName ? <EntryPointLink/> : <GettingStarted/>}
+                {loading ? <CircularProgress/> : domainName ? <EntryPointLink/> : <Intro/>}
         </PageContainer>
     );
 };

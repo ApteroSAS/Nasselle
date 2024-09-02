@@ -3,6 +3,7 @@ import {routes} from "./Routes";
 import {PanelInterface} from "../PanelInterface";
 import {resourceName} from "./Constant";
 import {customEnglishMessages} from "./i18n/en";
+import RemoveFromQueue from "@mui/icons-material/RemoveFromQueue";
 
 export const vnasPanel:PanelInterface = {
     name: resourceName,
@@ -15,5 +16,5 @@ export const vnasPanel:PanelInterface = {
     resource:{
         name: resourceName
     },
-    icon: DeveloperBoardIcon,
+    icon: RemoveFromQueue,
 };

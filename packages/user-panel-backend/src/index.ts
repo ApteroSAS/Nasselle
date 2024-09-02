@@ -4,13 +4,15 @@ import express from "express";
 //import {version as BUILD_VERSION} from "../dockflow.json";
 //console.log(BUILD_VERSION);
 
-import {generateKeyPair, sign, verifySignature} from "./library/KeyLib.js";
+import {computeDHSharedPassword, generateKeyPair, sign, verifySignature} from "./library/KeyLib.js";
 import {getUser} from "./firebase/firebaseIntegration.js";
 import {firebaseConfig} from "./firebase/firebaseConfig.js";
 import admin from "firebase-admin";
 import axios from "axios";
 import {config} from "./EnvConfig.js";
 import {UserFB} from "./library/UserFBScheme.js";
+import sodium from "libsodium-wrappers";
+import {base36} from "multiformats/bases/base36";
 
 let expressApp = express();
 expressApp.use(bodyParser.json());
@@ -61,7 +63,7 @@ expressApp.listen(port, () => {
       }
       const userData:UserFB = userDoc.data() as unknown as UserFB;
       // TODO verify subscription level then create a vnas
-      console.log('Creating V-NAS for user', userData);
+      console.log('Creating V-NAS for user', userData.id);
       if(!userData.domainName){
         throw new Error('User has no domain');
       }
@@ -73,27 +75,68 @@ expressApp.listen(port, () => {
       const signature = await sign(keyPair.priv, uid);
       console.log('Generated key pair and signature', keyPair, signature,uid);
 
-      const data:UserFB = {
-        pubkey: keyPair.pub
-      }
-      // Store the public key in Firestore
-      await admin.firestore().collection('users').doc(uid).update(data as any);
 
       const axiosResponse = await axios.post(config.VNAS_BACKEND_URL + '/setup', {
-        publicKey:keyPair.pub,
         signature:signature,
         name:userData.domainName,
         domain:userData.serverDomain,
         uid:uid,
         authToken: config.VNAS_AUTH_TOKEN
       });
-        console.log(axiosResponse.data);
+
+      const data:UserFB = {
+        pubkey: keyPair.pub,
+        vnas:`setup-ok`,
+      }
+      // Store the public key in Firestore
+      await admin.firestore().collection('users').doc(uid).update(data as any);
+
       res.json({status: 'success'});
     } catch (e) {
         console.error(e);
         res.status(500).json({err: e.toString()});
     }
   });
+
+  router.post('/delete-vnas', async (req, res) => {
+    try {
+      const uid = await verifyToken(req.headers.authorization);
+      const userDoc = await admin.firestore().collection('users').doc(uid).get();
+      if (!userDoc.exists) {
+        throw new Error('User not found');
+      }
+      const userData:UserFB = userDoc.data() as unknown as UserFB;
+      // TODO verify subscription level then create a vnas
+      console.log('Creating V-NAS for user', userData.id);
+      if(!userData.domainName){
+        throw new Error('User has no domain');
+      }
+      if (!userData.serverDomain) {
+        throw new Error('User has no name');
+      }
+
+
+      const axiosResponse = await axios.post(config.VNAS_BACKEND_URL + '/delete', {
+        uid:uid,
+        authToken: config.VNAS_AUTH_TOKEN
+      });
+
+      const data:UserFB = {
+        pubkey: null,
+        vnas:null,
+        serverDomain:null,
+        domainName:null
+      }
+      // Store the public key in Firestore
+      await admin.firestore().collection('users').doc(uid).update(data as any);
+
+      res.json({status: 'success'});
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({err: e.toString()});
+    }
+  });
+
 
   router.get('/verify/:userid/:sig', async (req, res) => {
     let {userid, sig} = req.params;
