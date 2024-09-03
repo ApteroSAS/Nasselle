@@ -11,8 +11,8 @@ import {EntryPointLink} from "../../components/EntryPointLink";
 import {CircularProgress, Paper} from "@mui/material";
 
 
-const API_URL = 'https://nasselle.com/dashboard/api';
-//const API_URL = 'http://localhost:8192';
+//const API_URL = 'https://nasselle.com/dashboard/api';
+const API_URL = 'http://localhost:8192';
 
 export const VNasComponent = () => {
     const notify = useNotify();

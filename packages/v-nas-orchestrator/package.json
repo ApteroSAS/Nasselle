@@ -18,6 +18,7 @@
     "@libp2p/interface": "^1.7.0",
     "@libp2p/peer-id": "^4.2.4",
     "@types/libsodium-wrappers": "^0.7.14",
+    "axios": "^1.7.7",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
@@ -27,6 +28,7 @@
     "libp2p": "^1.9.2",
     "libsodium-wrappers": "^0.7.15",
     "multiformats": "^13.2.2",
+    "node-ssh": "^13.2.0",
     "typescript": "5.5.4"
   },
   "devDependencies": {

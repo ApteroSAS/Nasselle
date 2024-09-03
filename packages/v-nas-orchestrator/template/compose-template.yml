@@ -6,22 +6,21 @@ services:
     environment:
       - PROVIDER=%PROVIDER_STR%
     networks:
-      - %NETWORK%
+      - nasselle
 
   casaos:
     image: nasselle/casa-img
     environment:
-      - DATA_ROOT=%USER_DATA_FOLDER%
-      - REF_NET=%NETWORK%
+      - DATA_ROOT=/DATA
+      - REF_NET=nasselle
       - REF_DOMAIN=%DOMAIN%
     volumes:
-      - %USER_DATA_FOLDER%:/DATA
-      - %USER_DATA_FOLDER%:%USER_DATA_FOLDER%
+      - /DATA:/DATA
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - %NETWORK%
+      - nasselle
 
 networks:
-  %NETWORK%:
+  nasselle:
     driver: bridge
-    name: %NETWORK%
+    name: nasselle

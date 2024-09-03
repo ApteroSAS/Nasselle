@@ -31,59 +31,6 @@ const styles = {
     } as React.CSSProperties,
 };
 
-const StepDockerInstall = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🐳 Docker
-        </Typography>
-        <Typography style={styles.stepDescription}>
-            First, find a NAS and ensure that your NAS supports Docker, with Docker and Docker Compose installed. This
-            is crucial for smooth running. Nasselle and Casa OS heavily rely on containers to work.
-        </Typography>
-    </Box>
-);
-
-const StepNameClaim = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🌐 Claim a Name
-        </Typography>
-        <Typography style={styles.stepDescription}>
-            Register to claim your exclusive subdomain <b>name.domain</b>. This will be your gateway to
-            accessing
-            and managing your NAS online.
-        </Typography>
-        <NameManagement/>
-    </Box>
-);
-
-const StepAPISetup = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🐳 create API token
-        </Typography>
-        <KeyManagement/>
-    </Box>
-);
-
-const StepDockerSetup = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🐳 Setup Nasselle
-        </Typography>
-        <DockerSetup/>
-    </Box>
-);
-
-const StepAccess = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🔑 Access Your NAS
-        </Typography>
-        <EntryPointLink/>
-    </Box>
-);
-
 export const GettingStartedVNas = () => {
     return (<>
         <Typography variant="h4" gutterBottom>
