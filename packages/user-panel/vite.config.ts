@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 import { visualizer } from 'rollup-plugin-visualizer';
 import preserveDirectives from 'rollup-preserve-directives';
 
+// Load environment variables from .env file
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 // https://vitejs.dev/config/
 export default defineConfig(async () => {
     return {

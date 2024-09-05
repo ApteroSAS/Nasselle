@@ -9,10 +9,13 @@ import {ResourceKey} from "../../App/UsersResource";
 import {useUserIdentity} from "../../App/user/UserIdentity";
 import {EntryPointLink} from "../../components/EntryPointLink";
 import {CircularProgress, Paper} from "@mui/material";
+import {TimerLoadingBar} from "../../components/TimeLoaderComponent";
 
 
-//const API_URL = 'https://nasselle.com/dashboard/api';
-const API_URL = 'http://localhost:8192';
+let API_URL = 'https://nasselle.com/dashboard/api';
+if(process.env.BACKEND_URL) {
+    API_URL = 'http://localhost:8192';
+}
 
 export const VNasComponent = () => {
     const notify = useNotify();
@@ -31,11 +34,11 @@ export const VNasComponent = () => {
         })();
     }, [userid, isLoading]);
 
-    const handleCreateClick = async () => {
+    const handleActionClick = async (action:'delete'|'reboot'|'create'|'update') => {
         setLoading(true);
         try {
             const token = await getUserToken();
-            const response = await axios.post(`${API_URL}/create-vnas`, {}, {
+            const response = await axios.post(`${API_URL}/vnas/${action}`, {}, {
                 headers: {
                     Authorization: `${token}`
                 }
@@ -43,7 +46,7 @@ export const VNasComponent = () => {
             console.log('Response:', response.data);
             const userData = await dataProvider.getOne<any>(ResourceKey, {id: userid} as any);
             setVnas(userData.data.vnas);
-            notify(`V-NAS Created - you can open your dashboard`);
+            notify(`done`);
         } catch (error) {
             console.error('Error creating V-NAS:', error);
             notify(`Error creating V-NAS: ${error}`);
@@ -52,27 +55,6 @@ export const VNasComponent = () => {
         }
     };
 
-    const handleDeleteClick = async () => {
-        setLoading(true);
-        try {
-            const token = await getUserToken();
-            const response = await axios.post(`${API_URL}/delete-vnas`, {}, {
-                headers: {
-                    Authorization: `${token}`
-                }
-            });
-            console.log('Response:', response.data);
-            const userData = await dataProvider.getOne<any>(ResourceKey, {id: userid} as any);
-            setVnas(userData.data.vnas);
-            notify(`V-NAS Deleted`);
-        } catch (error) {
-            console.error('Error deleting V-NAS:', error);
-            notify(`Error deleting V-NAS: ${error}`);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     return <>
         <Paper style={{padding: '20px'}}>
             <div style={{fontWeight: 'bold', color: 'red', textAlign: 'center'}}>
@@ -80,22 +62,42 @@ export const VNasComponent = () => {
             </div>
         </Paper>
         <br/>
-        {loading && <CircularProgress/>}
+        {loading && <TimerLoadingBar />}
         {!loading && <>
             {vnas && <>
                 <EntryPointLink/>
                 <br/>
                 <br/>
                 <br/>
-                <Button fullWidth variant="contained" color="warning" onClick={handleCreateClick}>Reset</Button>
+                <Button fullWidth variant="contained" color="warning"
+                        onClick={() => {
+                            handleActionClick("reboot")
+                        }}>Reboot</Button>
                 <br/>
                 <br/>
-                <Button fullWidth variant="contained" color="warning" onClick={handleDeleteClick}>DELETE V-NAS AND USER
-                    DATA</Button>
+                <Button fullWidth variant="contained" color="warning"
+                        onClick={() => {
+                            handleActionClick("delete")
+                        }}>DELETE V-NAS AND USER DATA</Button>
+                <br/>
+                <br/>
+                <Button fullWidth variant="contained" color="warning"
+                        onClick={() => {
+                            handleActionClick("create")
+                        }}>Re-create</Button>
+                <br/>
+                <br/>
+                <Button fullWidth variant="contained" color="warning"
+                        onClick={() => {
+                            handleActionClick("update")
+                        }}>Update OS</Button>
             </>}
             {!vnas && <>
                 <NameManagement/>
-                <Button fullWidth variant="contained" color="primary" onClick={handleCreateClick}>Create</Button>
+                <Button fullWidth variant="contained" color="primary"
+                        onClick={() => {
+                            handleActionClick("create")
+                        }}>Create</Button>
             </>}
 
         </>}

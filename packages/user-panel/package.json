@@ -27,6 +27,7 @@
         "clsx": "^2.1.1",
         "data-generator-retail": "^5.0.0",
         "date-fns": "^3.6.0",
+        "dotenv": "^16.4.5",
         "fakerest": "^4.0.1",
         "fetch-mock": "~9.11.0",
         "firebase": "^9.17.1",
