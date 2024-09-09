@@ -93,7 +93,11 @@ expressApp.listen(port, () => {
             } = req.body;
             console.log(`Creating V-NAS for ${name}@${domain} with uid ${uid}`);
             const composeLocalPath = await createTmpDockerComposeFile(domain, name, uid, signature);
-            await deleteInstance(uid);//in case it already exists
+            try {
+                await deleteInstance(uid);//in case it already exists
+            } catch (e) {
+                /*ignore : will panic if nothing to delete*/
+            }
             await createInstance(uid);
             await runDockerComposeSetup(uid, composeLocalPath, '/compose.yml');
 
