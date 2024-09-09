@@ -2,10 +2,14 @@ import React, {useState} from 'react';
 import RegisterProvider from './RegisterProvider.tsx';
 import ProviderList from './ProviderList.tsx';
 import ConnectWallet from "./ConnectWallet.tsx";
+import {EntryPointLink} from "./EntryPointLink.tsx";
+import {useDomain} from "./UseDomain.tsx";
+import VNASControl from "./VNASControl.tsx";
 
 const ProviderPanel: React.FC = () => {
-    const [isProvider, setIsProvider] = useState(true);
+    const [isProvider, setIsProvider] = useState(false);
     const [connected, setConnected] = useState(false);
+    const {domain,refresh} = useDomain();
 
     const toggleView = () => {
         setIsProvider(!isProvider);
@@ -24,7 +28,17 @@ const ProviderPanel: React.FC = () => {
                 }}/>
             </>}
             {connected && <>
-                {isProvider ? <ProviderList/> : <RegisterProvider/>}
+                {isProvider ? <RegisterProvider/> : <>
+                    {domain && <>
+                        <EntryPointLink/>
+                        <br/>
+                        <VNASControl onChange={() => {
+                            refresh()
+                        }}/>
+                        <br/>
+                    </>}
+                    {!domain && <ProviderList onProvided={() => {refresh()}}/>}
+                    </>}
                 <br/>
                 <button onClick={toggleView}>
                     {isProvider ? 'I am a requester' : 'I am a provider'}

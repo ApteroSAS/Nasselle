@@ -1,6 +1,6 @@
 {
   "generators": {
-    "address": 3,
+    "address": 2,
     "nonce": 0
   },
   "auth": [
@@ -17,10 +17,10 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "string": "MultiProvider"
+                  "string": "TestProvider"
                 },
                 {
-                  "string": "http://multiprovider.com"
+                  "string": "http://testprovider.com"
                 }
               ]
             }
@@ -42,41 +42,13 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "string": "MultiProvider"
+                  "string": "TestProvider"
                 },
                 {
-                  "string": "Reserved1"
+                  "string": "TestReserved"
                 },
                 {
-                  "i64": 50
-                }
-              ]
-            }
-          },
-          "sub_invocations": []
-        }
-      ]
-    ],
-    [
-      [
-        "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
-        {
-          "function": {
-            "contract_fn": {
-              "contract_address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD2KM",
-              "function_name": "reserve_instance",
-              "args": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "string": "MultiProvider"
-                },
-                {
-                  "string": "Reserved2"
-                },
-                {
-                  "i64": 150
+                  "i64": 100
                 }
               ]
             }
@@ -125,7 +97,7 @@
                           "symbol": "COUNTER"
                         },
                         "val": {
-                          "u32": 2
+                          "u32": 1
                         }
                       },
                       {
@@ -140,7 +112,7 @@
                           "map": [
                             {
                               "key": {
-                                "string": "MultiProvider"
+                                "string": "TestProvider"
                               },
                               "val": {
                                 "map": [
@@ -149,7 +121,7 @@
                                       "symbol": "provider_name"
                                     },
                                     "val": {
-                                      "string": "MultiProvider"
+                                      "string": "TestProvider"
                                     }
                                   },
                                   {
@@ -157,7 +129,7 @@
                                       "symbol": "provider_url"
                                     },
                                     "val": {
-                                      "string": "http://multiprovider.com"
+                                      "string": "http://testprovider.com"
                                     }
                                   }
                                 ]
@@ -187,7 +159,7 @@
                                       "symbol": "amount"
                                     },
                                     "val": {
-                                      "i64": 50
+                                      "i64": 100
                                     }
                                   },
                                   {
@@ -203,7 +175,7 @@
                                       "symbol": "provider_name"
                                     },
                                     "val": {
-                                      "string": "MultiProvider"
+                                      "string": "TestProvider"
                                     }
                                   },
                                   {
@@ -211,48 +183,7 @@
                                       "symbol": "reserved_name"
                                     },
                                     "val": {
-                                      "string": "Reserved1"
-                                    }
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "key": {
-                                "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                              },
-                              "val": {
-                                "map": [
-                                  {
-                                    "key": {
-                                      "symbol": "amount"
-                                    },
-                                    "val": {
-                                      "i64": 150
-                                    }
-                                  },
-                                  {
-                                    "key": {
-                                      "symbol": "id"
-                                    },
-                                    "val": {
-                                      "u32": 2
-                                    }
-                                  },
-                                  {
-                                    "key": {
-                                      "symbol": "provider_name"
-                                    },
-                                    "val": {
-                                      "string": "MultiProvider"
-                                    }
-                                  },
-                                  {
-                                    "key": {
-                                      "symbol": "reserved_name"
-                                    },
-                                    "val": {
-                                      "string": "Reserved2"
+                                      "string": "TestReserved"
                                     }
                                   }
                                 ]
@@ -339,39 +270,6 @@
       ],
       [
         {
-          "contract_data": {
-            "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
-            "key": {
-              "ledger_key_nonce": {
-                "nonce": 1033654523790656264
-              }
-            },
-            "durability": "temporary"
-          }
-        },
-        [
-          {
-            "last_modified_ledger_seq": 0,
-            "data": {
-              "contract_data": {
-                "ext": "v0",
-                "contract": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M",
-                "key": {
-                  "ledger_key_nonce": {
-                    "nonce": 1033654523790656264
-                  }
-                },
-                "durability": "temporary",
-                "val": "void"
-              }
-            },
-            "ext": "v0"
-          },
-          6311999
-        ]
-      ],
-      [
-        {
           "contract_code": {
             "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
           }
@@ -418,10 +316,10 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "string": "MultiProvider"
+                  "string": "TestProvider"
                 },
                 {
-                  "string": "http://multiprovider.com"
+                  "string": "http://testprovider.com"
                 }
               ]
             }
@@ -475,13 +373,13 @@
                   "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
                 },
                 {
-                  "string": "MultiProvider"
+                  "string": "TestProvider"
                 },
                 {
-                  "string": "Reserved1"
+                  "string": "TestReserved"
                 },
                 {
-                  "i64": 50
+                  "i64": 100
                 }
               ]
             }
@@ -526,24 +424,11 @@
                 "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
               },
               {
-                "symbol": "reserve_instance"
+                "symbol": "get_reserved_instance"
               }
             ],
             "data": {
-              "vec": [
-                {
-                  "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
-                },
-                {
-                  "string": "MultiProvider"
-                },
-                {
-                  "string": "Reserved2"
-                },
-                {
-                  "i64": 150
-                }
-              ]
+              "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
             }
           }
         }
@@ -562,138 +447,41 @@
                 "symbol": "fn_return"
               },
               {
-                "symbol": "reserve_instance"
-              }
-            ],
-            "data": "void"
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": null,
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "fn_call"
-              },
-              {
-                "bytes": "0000000000000000000000000000000000000000000000000000000000000001"
-              },
-              {
-                "symbol": "list_reserved"
-              }
-            ],
-            "data": {
-              "string": "MultiProvider"
-            }
-          }
-        }
-      },
-      "failed_call": false
-    },
-    {
-      "event": {
-        "ext": "v0",
-        "contract_id": "0000000000000000000000000000000000000000000000000000000000000001",
-        "type_": "diagnostic",
-        "body": {
-          "v0": {
-            "topics": [
-              {
-                "symbol": "fn_return"
-              },
-              {
-                "symbol": "list_reserved"
+                "symbol": "get_reserved_instance"
               }
             ],
             "data": {
               "map": [
                 {
                   "key": {
-                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFCT4"
+                    "symbol": "amount"
                   },
                   "val": {
-                    "map": [
-                      {
-                        "key": {
-                          "symbol": "amount"
-                        },
-                        "val": {
-                          "i64": 50
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "id"
-                        },
-                        "val": {
-                          "u32": 1
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "provider_name"
-                        },
-                        "val": {
-                          "string": "MultiProvider"
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "reserved_name"
-                        },
-                        "val": {
-                          "string": "Reserved1"
-                        }
-                      }
-                    ]
+                    "i64": 100
                   }
                 },
                 {
                   "key": {
-                    "address": "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHK3M"
+                    "symbol": "id"
                   },
                   "val": {
-                    "map": [
-                      {
-                        "key": {
-                          "symbol": "amount"
-                        },
-                        "val": {
-                          "i64": 150
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "id"
-                        },
-                        "val": {
-                          "u32": 2
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "provider_name"
-                        },
-                        "val": {
-                          "string": "MultiProvider"
-                        }
-                      },
-                      {
-                        "key": {
-                          "symbol": "reserved_name"
-                        },
-                        "val": {
-                          "string": "Reserved2"
-                        }
-                      }
-                    ]
+                    "u32": 1
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "provider_name"
+                  },
+                  "val": {
+                    "string": "TestProvider"
+                  }
+                },
+                {
+                  "key": {
+                    "symbol": "reserved_name"
+                  },
+                  "val": {
+                    "string": "TestReserved"
                   }
                 }
               ]

@@ -97,3 +97,44 @@ fn test_multiple_reservations() {
 
     std::println!("{}", env.logs().all().join("\n"));
 }
+
+#[test]
+fn test_get_reserved_instance() {
+    let env = Env::default();
+    env.mock_all_auths(); // Mock all authorizations for the contract
+
+    let contract_id = env.register_contract(None, NasselleContract);
+    let client = NasselleContractClient::new(&env, &contract_id);
+
+    let provider_name = String::from_str(&env, "TestProvider");
+    let provider_url = String::from_str(&env, "http://testprovider.com");
+
+    // Create a test address to use as the caller
+    let caller_address = Address::generate(&env);
+
+    // Call the provide_instance function with the caller_address
+    client.provide_instance(&caller_address, &provider_name, &provider_url);
+
+    // Now, test the reserve_instance function
+    let reserved_name = String::from_str(&env, "TestReserved");
+    let reserve_amount = 100i64;
+
+    // Reserve an instance with the same caller address
+    client.reserve_instance(&caller_address, &provider_name, &reserved_name, &reserve_amount);
+
+    // Call get_reserved_instance and verify the result
+    let reserved_instance = client.get_reserved_instance(&caller_address).unwrap();
+
+    assert_eq!(&reserved_instance.provider_name, &provider_name);
+    assert_eq!(&reserved_instance.reserved_name, &reserved_name);
+    assert_eq!(reserved_instance.amount, reserve_amount);
+
+    
+    /*let caller_address2 = Address::generate(&env);
+    // Call get_reserved_instance again on unknown address to veryfy the result is None
+    let reserved_instance2 = client.get_reserved_instance(&caller_address2);
+    assert_eq!(&reserved_instance2, None);*/
+
+    // Verify no logs or errors
+    std::println!("{}", env.logs().all().join("\n"));
+}

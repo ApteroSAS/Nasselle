@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { getAddress, kit, loadedPublicKey } from './stellar-wallets-kit';
+import { getAddress, kit, loadedPublicKey } from '../service/stellar-wallets-kit.ts';
 import nasselle_contract from '../contracts/nasselle_contract';
 import {
     Box,

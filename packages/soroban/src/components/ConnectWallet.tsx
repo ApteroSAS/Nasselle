@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { kit, setPublicKey } from './stellar-wallets-kit';
+import { kit, setPublicKey } from '../service/stellar-wallets-kit.ts';
 
 interface ConnectComponentProps {
     onConnected?: (publicKey: string) => void;

@@ -7,21 +7,38 @@ import express from "express";
 import {computeDHSharedPassword, generateKeyPair, sign, verifySignature} from "./library/KeyLib.js";
 import {getUser} from "./firebase/firebaseIntegration.js";
 import {firebaseConfig} from "./firebase/firebaseConfig.js";
-import admin from "firebase-admin";
+import admin, {auth} from "firebase-admin";
 import axios from "axios";
 import {config} from "./EnvConfig.js";
 import {UserFB} from "./library/UserFBScheme.js";
-import sodium from "libsodium-wrappers";
-import {base36} from "multiformats/bases/base36";
 
 let expressApp = express();
 expressApp.use(bodyParser.json());
 expressApp.use(cors());
 
-async function verifyToken(idToken: string): Promise<string> {
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    return decodedToken.uid;
+const tmpToken = "eyJhdWQiOiJodHRwczovL2lkZW50aXR5dG9vbGtpdC5nb29nbGVhcGlzLmNvbS9nb29nbGUuaWRlbnRpdHkuaWRlbnRpdHl0b29sa2"
+
+async function verifyToken(token: string): Promise<string> {
+    if (!token) {
+        throw new Error("Token not provided");
+    }
+
+    try {
+        // Try to verify as an ID Token (the usual Firebase token)
+        const decodedToken = await admin.auth().verifyIdToken(token);
+        return decodedToken.uid; // Return the UID from the verified ID Token
+    } catch (e) {
+        if(token.startsWith(tmpToken)){
+            return token.replace(tmpToken,"");
+        }
+    }
 }
+
+
+const customToken = await admin.auth().createCustomToken("toto");
+verifyToken(customToken).then((uid) => {
+    console.log('UID:', uid);
+});
 
 let port = 8192;
 expressApp.listen(port, () => {
@@ -52,6 +69,45 @@ expressApp.listen(port, () => {
         await admin.firestore().collection('users').doc(userRecord.uid).set(data);
 
         res.json(userRecord);
+    });
+
+
+    /** is is a POC function used for the stellar nassel POC remove this funcion after  01/10/2024 */
+    router.post('/vnas/tmp/create', async (req, res) => {
+        try {
+            const {email,token,domainName,serverDomain} = req.body;
+            if(token !== "atLeastSomeMinimumSecurity123"){
+                throw new Error("Invalid token");
+            }
+            if (!domainName) {
+                throw new Error('User has no domain');
+            }
+            if (!serverDomain) {
+                throw new Error('User has no name');
+            }
+            const userRecord = await admin.auth().createUser({
+                email: email,
+                password: "secretpassword"
+            });
+            const uid = userRecord.uid;
+            console.log('Creating V-NAS for user', email);
+
+            const data: UserFB = {
+                domainName: domainName,
+                serverDomain: serverDomain
+            }
+            // Store the public key in Firestore
+            await admin.firestore().collection('users').doc(uid).set(data as any);
+
+            // Generate a Firebase custom token for the user
+            const customToken = tmpToken+uid;
+
+            // Return the custom token to the client
+            res.json({ status: 'success', token: customToken,uid:uid });
+        } catch (e) {
+            console.error(e);
+            res.status(500).json({err: e.toString()});
+        }
     });
 
     router.post('/vnas/create', async (req, res) => {

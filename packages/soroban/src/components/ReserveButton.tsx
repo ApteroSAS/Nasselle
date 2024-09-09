@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { getAddress, kit, loadedPublicKey } from './stellar-wallets-kit';
+import React, { useState } from 'react';
+import { getAddress, kit, loadedPublicKey } from '../service/stellar-wallets-kit.ts';
 import nasselle_contract from '../contracts/nasselle_contract';
+import {createUser} from "../service/VNASService.ts";
 
 // Define the provider prop type
 type Provider = {
@@ -11,25 +12,14 @@ type Provider = {
 // Update the ReserveButton to accept props
 interface ReserveButtonProps {
     provider: Provider;
+    onProviderReserved?: (provider: Provider, name: string) => void;
+    disabled?: boolean;
+    name: string;
+    price: number;
 }
 
-const ReserveButton: React.FC<ReserveButtonProps> = ({ provider }) => {
+const ReserveButton: React.FC<ReserveButtonProps> = ({ name,provider,onProviderReserved,disabled,price }) => {
     const [loading, setLoading] = useState<boolean>(false);
-
-    useEffect(() => {
-        const fetchContractData = async () => {
-            try {
-                const providers = await nasselle_contract.list_providers();
-                const reserved = await nasselle_contract.list_reserved({ provider_name: provider.provider_name });
-                console.log('list_providers ', providers.result);
-                console.log('list_reserved ', reserved.result);
-            } catch (e) {
-                console.error(e);
-            }
-        };
-
-        fetchContractData();
-    }, [provider.provider_name]);
 
     const handleClick = async () => {
         if(loading) return;
@@ -46,11 +36,13 @@ const ReserveButton: React.FC<ReserveButtonProps> = ({ provider }) => {
         setLoading(true);
 
         try {
+            await createUser(name, provider.provider_url);//TMP create web2 VNAS user
+
             const tx = await nasselle_contract.reserve_instance({
                 caller_address: address,
-                amount: 1000000000n, // Ensure this is the correct value
+                amount: BigInt(price), // value: price,
                 provider_name: provider.provider_name, // Use provider name from props
-                reserved_name: 'test', // Replace with actual reserved name if necessary
+                reserved_name: name, // Replace with actual reserved name if necessary
             });
 
             await tx.signAndSend({
@@ -59,6 +51,10 @@ const ReserveButton: React.FC<ReserveButtonProps> = ({ provider }) => {
                     return signedTxXdr;
                 },
             });
+
+            if (onProviderReserved) {
+                onProviderReserved(provider,name);
+            }
         } catch (e) {
             console.error(e);
         } finally {
@@ -68,7 +64,7 @@ const ReserveButton: React.FC<ReserveButtonProps> = ({ provider }) => {
 
     return (
         <div>
-            <button onClick={handleClick} aria-controls="current-value">
+            <button disabled={disabled} onClick={handleClick} aria-controls="current-value">
                 {loading ? 'Processing...' : `Reserve `}
             </button>
         </div>
