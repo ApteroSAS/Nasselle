@@ -65,7 +65,7 @@ export const VNasComponent = () => {
         {loading && <TimerLoadingBar />}
         {!loading && <>
             {vnas && <>
-                <EntryPointLink/>
+                <EntryPointLink editMode={true}/>
                 <br/>
                 <br/>
                 <br/>
@@ -93,7 +93,7 @@ export const VNasComponent = () => {
                         }}>Update OS</Button>
             </>}
             {!vnas && <>
-                <NameManagement/>
+                <NameManagement editMode={true}/>
                 <Button fullWidth variant="contained" color="primary"
                         onClick={() => {
                             handleActionClick("create")

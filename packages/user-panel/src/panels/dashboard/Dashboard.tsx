@@ -1,10 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {Box, Button, CircularProgress, Paper, Typography} from '@mui/material';
+import {CircularProgress} from '@mui/material';
 import {useDataProvider} from 'react-admin';
 import {useUserIdentity} from '../../App/user/UserIdentity';
-import {domainSuffix} from '../../configuration/WorkConfiguration';
 import {ResourceKey} from '../../App/UsersResource';
-import {GettingStartedHWNas} from '../hw-nas/GettingStartedHWNas';
 import {EntryPointLink} from "../../components/EntryPointLink";
 import {PageContainer} from "../../components/WrapperElement";
 import {Intro} from "../../components/Intro";
@@ -32,7 +30,7 @@ export const Dashboard: React.FC = () => {
 
     return (
         <PageContainer>
-                {loading ? <CircularProgress/> : domainName ? <EntryPointLink/> : <Intro/>}
+                {loading ? <CircularProgress/> : domainName ? <EntryPointLink editMode={false}/> : <Intro/>}
         </PageContainer>
     );
 };

@@ -1,9 +1,10 @@
-import React, {useState, useEffect} from "react";
-import {Box, ToggleButton, ToggleButtonGroup, Typography, Button} from "@mui/material";
-import {Code, ViewModule, ContentCopy} from "@mui/icons-material";
-import {useDataProvider, useNotify} from "react-admin";
+import React, { useState} from "react";
+import {Box, Button, ToggleButton, ToggleButtonGroup, Typography} from "@mui/material";
+import {Code, ContentCopy, Refresh, ViewModule} from "@mui/icons-material"; // Added Refresh icon
+import {useNotify} from "react-admin";
 import {useUserIdentity} from "../App/user/UserIdentity";
-import {ResourceKey} from "../App/UsersResource";
+import {useProviderString} from "./UseProviderString";
+import {useRefDomain} from "./UseRefDomain";
 
 const styles = {
     stepDescription: {
@@ -19,36 +20,19 @@ const styles = {
     } as React.CSSProperties,
 };
 
-export const DockerSetup = () => {
+interface DockerSetupProps {
+}
+
+export const DockerSetup: React.FC<DockerSetupProps> = ({ }) => {
     const [deploymentMethod, setDeploymentMethod] = useState('docker');
-    const [provider, setProvider] = useState("");
-    const [refDomain, setRefDomain] = useState("");
-    const dataProvider = useDataProvider();
+    const [isRegenerating, setIsRegenerating] = useState(false); // Added state for regenerating process
     const notify = useNotify();
     const {data, isLoading, error} = useUserIdentity();
     const userid = data?.id;
+    const provider = useProviderString();
+    const domain = useRefDomain();
 
-    useEffect(() => {
-        const loadProviderDetails = async () => {
-            if (userid) {
-                try {
-                    const response = await dataProvider.getOne(ResourceKey, {id: userid});
-                    const {domainName, serverDomain} = response.data;
-                    const privkey = (window as any).privkey;
-                    setRefDomain(`${domainName}.${serverDomain}`);
-
-                    setProvider(`https://${serverDomain},${userid},${privkey ? privkey : "<private key>"}`);
-                } catch (error) {
-                    console.error("Failed to fetch provider details:", error);
-                    notify('Failed to fetch provider details', {type: 'error'});
-                }
-            }
-        };
-
-        loadProviderDetails();
-    }, [userid]);
-
-    const dockerLineConfig = `docker network create nasselle && docker run -d --cap-add NET_ADMIN -e PROVIDER="${provider}" --network nasselle --name mesh-router-nsl.sh nasselle/mesh-router && docker run -d -e DATA_ROOT=/c/DATA -e REF_NET=nasselle -e REF_DOMAIN=${refDomain} -v C:\\DATA:/DATA --network nasselle -v /var/run/docker.sock:/var/run/docker.sock --name casaos nasselle/casa-img`;
+    const dockerLineConfig = `docker network create nasselle && docker run -d --cap-add NET_ADMIN -e PROVIDER="${provider.str}" --network nasselle --name mesh-router-nsl.sh nasselle/mesh-router && docker run -d -e DATA_ROOT=/c/DATA -e REF_NET=nasselle -e REF_DOMAIN=${domain.refDomain} -v C:\\DATA:/DATA --network nasselle -v /var/run/docker.sock:/var/run/docker.sock --name casaos nasselle/casa-img`;
     const dockerComposeConfig = `
 services:
   mesh-router:
@@ -56,7 +40,7 @@ services:
     cap_add:
       - NET_ADMIN
     environment:
-      - PROVIDER=${provider}
+      - PROVIDER=${provider.str}
     networks:
       - nasselle
 
@@ -65,7 +49,7 @@ services:
     environment:
       - DATA_ROOT=/c/DATA
       - REF_NET=nasselle
-      - REF_DOMAIN=${refDomain}
+      - REF_DOMAIN=${domain.refDomain}
     volumes:
       - C:\\DATA:/DATA
       - /var/run/docker.sock:/var/run/docker.sock
@@ -88,7 +72,7 @@ networks:
     };
 
     const handleCopyToClipboard = () => {
-        let config = '';
+        let config;
         if (deploymentMethod === 'docker') {
             config = dockerLineConfig;
         } else {
@@ -101,6 +85,20 @@ networks:
 
     if (isLoading) return <Typography>Loading...</Typography>;
     if (error) return <Typography>Error: {error.message}</Typography>;
+
+    const regenerateKeyPair = async () => {
+        if (!userid) return;
+        setIsRegenerating(true); // Indicate the regeneration process has started
+        try {
+            await provider.regenerateKeyPair();
+            notify('Key pair regenerated successfully!', {type: 'success'});
+        } catch (error) {
+            console.error("Failed to regenerate key pair:", error);
+            notify('Failed to regenerate key pair', {type: 'error'});
+        } finally {
+            setIsRegenerating(false); // Reset regenerating state
+        }
+    };
 
     return (
         <>
@@ -125,15 +123,6 @@ networks:
                     <Box style={styles.preStyle}>
                         {dockerLineConfig}
                     </Box>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<ContentCopy/>}
-                        onClick={handleCopyToClipboard}
-                        style={{marginTop: '10px'}}
-                    >
-                        Copy Config
-                    </Button>
                 </Typography>
             ) : (
                 <Typography style={styles.stepDescription}>
@@ -141,17 +130,35 @@ networks:
                     <Box style={styles.preStyle}>
                         {dockerComposeConfig}
                     </Box>
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        startIcon={<ContentCopy/>}
-                        onClick={handleCopyToClipboard}
-                        style={{marginTop: '10px'}}
-                    >
-                        Copy Config
-                    </Button>
                 </Typography>
             )}
+
+            {/* Wrap the buttons in a Box to position them in a row */}
+            <Box
+                display="flex"
+                justifyContent="flex-start"  // Aligns buttons to the left with space between them
+                gap={2}  // Adds some space between the buttons
+                style={{marginTop: '10px'}}  // Add margin to the top
+            >
+                <Button
+                    variant="contained"
+                    color="primary"
+                    startIcon={<ContentCopy />}
+                    onClick={handleCopyToClipboard}
+                >
+                    Copy Config
+                </Button>
+
+                {provider.signature=="<SIGNATURE>" && <Button
+                    variant="outlined"
+                    color="info"
+                    startIcon={<Refresh />} // Refresh icon for the regenerate button
+                    onClick={regenerateKeyPair}
+                    disabled={isRegenerating} // Disable button while regenerating
+                >
+                    {isRegenerating ? "Regenerating..." : "Regenerate Key Pair"}
+                </Button>}
+            </Box>
         </>
     );
 };

@@ -3,20 +3,131 @@ import {config} from "./EnvConfig.js";
 import {NodeSSH} from "node-ssh";
 import {Instance} from "./ScalewayInterface.js";
 
-async function getInstanceDetails(instanceId: string):Promise<Instance> {
-        const response = await axios.get(
-            `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers/${instanceId}`,
-            {
-                headers: {
-                    'X-Auth-Token': config.SCW_SECRET_KEY,
-                    'Content-Type': 'application/json'
-                }
+export async function createInstance(uid: string): Promise<Instance> {
+    // Create an instance and attach the reserved flexible IP
+    const response = await axios.post(
+        `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers`,
+        {
+            name: servername(uid),
+            project: config.SCW_DEFAULT_PROJECT_ID,
+            commercial_type: config.SCW_INSTANCE,
+            image: config.SCW_IMAGE,
+            //enable_ipv6: true
+        },
+        {
+            headers: {
+                'X-Auth-Token': config.SCW_SECRET_KEY,
+                'Content-Type': 'application/json'
             }
-        );
-        return response.data.server;
+        }
+    );
+
+    let instance = response.data.server;
+    await reserveFlexibleIP(instance.id);
+
+    await actionOnInstanceBySid(instance.id, 'poweron');
+    instance = await getInstanceDetails(instance.id);
+    //console.log('Instance:', instance);
+    return instance;
 }
 
-export async function deleteInstance(serverId: string): Promise<void> {
+export async function deleteInstance(uid: string): Promise<void> {
+    //try {
+        const instances = await getInstanceByUID(uid);
+        for (const instance of instances) {
+            await actionOnInstanceBySid(instance.id, "terminate");
+            // await deleteInstanceBySid(instance.id);
+        }
+    /*}catch (e) {
+        console.error(e);//just log the error
+    }*/
+}
+
+export async function executeCommand(uid: string, command: string): Promise<void> {
+    const instances = await getInstanceByUID(uid);
+    if(instances.length !== 1) {
+        console.error(instances);
+        throw new Error(`Expected 1 instance but got ${instances.length}`);
+    }
+    await executeCommandByIp(instances[0].public_ip.address, command);
+}
+
+export async function actionOnInstance(uid: string, action: 'poweron' | 'poweroff' | 'reboot' | 'terminate'): Promise<void> {
+    const instances = await getInstanceByUID(uid);
+    if (instances.length !== 1) {
+        console.error(instances);
+        throw new Error(`Expected 1 instance but got ${instances.length}`);
+    }
+    await actionOnInstanceBySid(instances[0].id, action);
+}
+
+export async function runDockerComposeSetup(uid: string, localComposePath: string, remoteComposePath: string) {
+    const instances = await getInstanceByUID(uid);
+    if (instances.length !== 1) {
+        console.error(instances);
+        throw new Error(`Expected 1 instance but got ${instances.length}`);
+    }
+    const instanceIp = instances[0].public_ip.address;
+    const ssh = new NodeSSH();
+    try {
+        const retries = 10;
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            let delay = 1000 * attempt;
+            try {
+                await ssh.connect({
+                    host: instanceIp,
+                    username: 'root',
+                    privateKey: config.SSH_KEY,
+                });
+            } catch (error) {
+                if (attempt === retries) {
+                    throw error; // Rethrow the error if it's the last attempt
+                }
+                console.log(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+                await new Promise(res => setTimeout(res, delay)); // Wait before retrying
+            }
+        }
+        // Use putFile to copy the file from local to remote
+        await ssh.putFile(localComposePath, remoteComposePath);
+        console.log('compose file send!');
+
+        let result = await ssh.execCommand(`docker compose -f ${remoteComposePath} -p nasselle pull`);
+        if (result.code !== 0) {
+            throw new Error(`stderr: ${result.stderr}`);
+        }
+        console.log('compose pull done!');
+        result = await ssh.execCommand(`docker compose -f ${remoteComposePath} -p nasselle up -d`);
+        if (result.code !== 0) {
+            throw new Error(`stderr: ${result.stderr}`);
+        }
+        console.log('compose up done!');
+    } catch (error) {
+        throw error;
+    } finally {
+        ssh.dispose(); // Always close the connection
+    }
+}
+
+// Helper function to create a temporary Docker Compose file
+
+function servername(uid: string): string {
+    return `nasselle-v-nas-${uid}`;
+}
+
+async function getInstanceDetails(instanceId: string):Promise<Instance> {
+    const response = await axios.get(
+        `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers/${instanceId}`,
+        {
+            headers: {
+                'X-Auth-Token': config.SCW_SECRET_KEY,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+    return response.data.server;
+}
+
+async function deleteInstanceBySid(serverId: string): Promise<void> {
     try {
         // Perform DELETE request to delete the instance
         await axios.delete(
@@ -35,36 +146,7 @@ export async function deleteInstance(serverId: string): Promise<void> {
     }
 }
 
-export async function getInstanceByUID(uid: string):Promise<Instance> {
-    // Fetch instances filtered by name using the UID (assuming the UID is part of the instance name)
-    const response = await axios.get(
-        `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers?name=${servername(uid)}`,
-        {
-            headers: {
-                'X-Auth-Token': config.SCW_SECRET_KEY,
-                'Content-Type': 'application/json'
-            }
-        }
-    );
-
-    const instances = response.data.servers;
-
-    // If no instances are found
-    if (instances.length === 0) {
-        throw new Error(`No instances found with name filter "${uid}"`);
-    }
-
-    // Find the exact instance by checking the UID if necessary
-    const instance = instances.find((server: any) => server.name === servername(uid));
-
-    if (!instance) {
-        throw new Error(`Instance with UID ${uid} not found`);
-    }
-
-    return instance;
-}
-
-export async function actionOnInstance(instanceId: string, action: 'poweron' | 'poweroff' | 'reboot' | 'terminate'): Promise<void> {
+async function actionOnInstanceBySid(instanceId: string, action: 'poweron' | 'poweroff' | 'reboot' | 'terminate'): Promise<void> {
     await axios.post(
         `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers/${instanceId}/action`, {action,},
         {
@@ -97,74 +179,7 @@ async function reserveFlexibleIP(server_uuid: string): Promise<string> {
     return ip.id;
 }
 
-export function servername(uid: string): string {
-    return `nasselle-v-nas-${uid}`;
-}
-
-export async function createInstance(uid: string): Promise<Instance> {
-    // Create an instance and attach the reserved flexible IP
-    const response = await axios.post(
-        `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers`,
-        {
-            name: servername(uid),
-            project: config.SCW_DEFAULT_PROJECT_ID,
-            commercial_type: config.SCW_INSTANCE,
-            image: config.SCW_IMAGE,
-            //enable_ipv6: true
-        },
-        {
-            headers: {
-                'X-Auth-Token': config.SCW_SECRET_KEY,
-                'Content-Type': 'application/json'
-            }
-        }
-    );
-
-    let instance = response.data.server;
-    await reserveFlexibleIP(instance.id);
-
-    await actionOnInstance(instance.id, 'poweron');
-    instance = await getInstanceDetails(instance.id);
-    //console.log('Instance:', instance);
-    return instance;
-}
-
-export async function runDockerCompose(instanceIp: string, localComposePath: string, remoteComposePath: string) {
-    const ssh = new NodeSSH();
-    try {
-        const retries = 10;
-        for (let attempt = 1; attempt <= retries; attempt++) {
-            let delay = 1000 * attempt;
-            try {
-                await ssh.connect({
-                    host: instanceIp,
-                    username: 'root',
-                    privateKey: config.SSH_KEY,
-                });
-            } catch (error) {
-                if (attempt === retries) {
-                    throw error; // Rethrow the error if it's the last attempt
-                }
-                console.log(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
-                await new Promise(res => setTimeout(res, delay)); // Wait before retrying
-            }
-        }
-        // Use putFile to copy the file from local to remote
-        await ssh.putFile(localComposePath, remoteComposePath);
-        console.log('compose file send!');
-
-        let result = await ssh.execCommand(`docker compose -f ${remoteComposePath} -p nasselle up -d`);
-        if (result.code !== 0) {
-            throw new Error(`stderr: ${result.stderr}`);
-        }
-    } catch (error) {
-        throw error;
-    } finally {
-        ssh.dispose(); // Always close the connection
-    }
-}
-
-export async function executeCommand(instanceIp: string, command: string) {
+async function executeCommandByIp(instanceIp: string, command: string) {
     const ssh = new NodeSSH();
     try {
         await ssh.connect({
@@ -181,4 +196,33 @@ export async function executeCommand(instanceIp: string, command: string) {
     } finally {
         ssh.dispose(); // Always close the connection
     }
+}
+
+async function getInstanceByUID(uid: string):Promise<Instance[]> {
+    // Fetch instances filtered by name using the UID (assuming the UID is part of the instance name)
+    const response = await axios.get(
+        `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers?name=${servername(uid)}`,
+        {
+            headers: {
+                'X-Auth-Token': config.SCW_SECRET_KEY,
+                'Content-Type': 'application/json'
+            }
+        }
+    );
+
+    const instances = response.data.servers;
+
+    // If no instances are found
+    if (instances.length === 0) {
+        throw new Error(`No instances found with name filter "${uid}"`);
+    }
+
+    // Find the exact instance by checking the UID if necessary
+    const instance = instances.find((server: any) => server.name === servername(uid));
+
+    if (!instance) {
+        throw new Error(`Instance with UID ${uid} not found`);
+    }
+
+    return instances;
 }

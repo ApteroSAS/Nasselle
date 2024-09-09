@@ -1,8 +1,6 @@
-import {Box, Button, Paper, Typography} from "@mui/material";
+import {Box, Typography} from "@mui/material";
 import React from "react";
 import {DockerSetup} from "../../components/DockerSetUp";
-import {NameManagement} from "../../components/NameManagement";
-import {KeyManagement} from "../../components/KeyManagement";
 import {EntryPointLink} from "../../components/EntryPointLink";
 
 const styles = {
@@ -37,49 +35,10 @@ const StepDockerInstall = () => (
         </Typography>
         <Typography style={styles.stepDescription}>
             First, find a NAS and ensure that your NAS supports Docker, with Docker and Docker Compose installed. This
-            is crucial for smooth running. Nasselle and Casa OS heavily rely on containers to work.
+            is crucial for smooth running. Nasselle and Casa OS heavily rely on containers to work. You can install Docker
+            Desktop by following the <a href="https://docs.docker.com/desktop/install/windows-install/">Docker Desktop installation guide</a> or
+            install Docker Community Edition by following the <a href="https://docs.docker.com/engine/install/">Docker Community installation guide</a>.
         </Typography>
-    </Box>
-);
-
-const StepNameClaim = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🌐 Claim a Name
-        </Typography>
-        <Typography style={styles.stepDescription}>
-            Register to claim your exclusive subdomain <b>name.domain</b>. This will be your gateway to
-            accessing
-            and managing your NAS online.
-        </Typography>
-        <NameManagement/>
-    </Box>
-);
-
-const StepAPISetup = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🐳 create API token
-        </Typography>
-        <KeyManagement/>
-    </Box>
-);
-
-const StepDockerSetup = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🐳 Setup Nasselle
-        </Typography>
-        <DockerSetup/>
-    </Box>
-);
-
-const StepAccess = () => (
-    <Box style={styles.stepBox}>
-        <Typography variant="h6" style={styles.stepTitle}>
-            🔑 Access Your NAS
-        </Typography>
-        <EntryPointLink/>
     </Box>
 );
 
@@ -89,9 +48,17 @@ export const GettingStartedHWNas = () => {
             Getting Started
         </Typography>
         <StepDockerInstall/>
-        <StepAPISetup/>
-        <StepNameClaim/>
-        <StepDockerSetup/>
-        <StepAccess/>
+        <Box style={styles.stepBox}>
+            <Typography variant="h6" style={styles.stepTitle}>
+                🐳 Setup Nasselle
+            </Typography>
+            <DockerSetup />
+        </Box>
+        <Box style={styles.stepBox}>
+            <Typography variant="h6" style={styles.stepTitle}>
+                🔑 Access Your NAS
+            </Typography>
+            <EntryPointLink editMode={true}/>
+        </Box>
     </>);
 }

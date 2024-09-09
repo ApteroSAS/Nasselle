@@ -11,32 +11,10 @@ import {Intro} from "../../components/Intro";
 import {GettingStartedHWNas} from "./GettingStartedHWNas";
 
 export const HWNasPanel = () => {
-    const [loading, setLoading] = useState(true);
-    const [domainName, setDomainName] = useState('');
-    const dataProvider = useDataProvider();
-    const identity = useUserIdentity();
-
-    useEffect(() => {
-        if (identity.isLoading) return;
-
-        const fetchDomainName = async () => {
-            try {
-                const userData = await dataProvider.getOne<any>(ResourceKey, {id: identity.data.id} as any);
-                setDomainName(userData.data.domainName);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchDomainName();
-    }, [identity.isLoading]);
 
     return (
         <PageContainer>
-            {loading ? <CircularProgress/> : domainName ? <>
-                <NameManagement/>
-                <KeyManagement/>
-            </> : <GettingStartedHWNas/>}
+            <GettingStartedHWNas/>
         </PageContainer>
     );
 };

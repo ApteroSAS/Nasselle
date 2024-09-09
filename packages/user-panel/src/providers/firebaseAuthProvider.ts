@@ -1,7 +1,6 @@
 import {FirebaseAuthProvider} from 'react-admin-firebase';
 import {options} from "../configuration/FireBaseOptions";
 import {getAuth, createUserWithEmailAndPassword} from "firebase/auth";
-import { AuthProvider } from 'react-admin';
 
 
 // Initialize Firebase

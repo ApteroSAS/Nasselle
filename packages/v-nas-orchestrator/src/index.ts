@@ -6,12 +6,9 @@ import {config} from "./EnvConfig.js";
 import {createTmpDockerComposeFile} from "./DockerCopmposeLib.js";
 import {
     actionOnInstance,
-    createInstance,
-    deleteInstance,
-    executeCommand,
-    getInstanceByUID,
-    runDockerCompose
+    createInstance, deleteInstance, executeCommand, runDockerComposeSetup
 } from "./ScalewayLib.js";
+
 let expressApp = express();
 expressApp.use(bodyParser.json());
 expressApp.use(cors());
@@ -30,9 +27,12 @@ expressApp.listen(port, () => {
                 res.status(401).json({error: "Unauthorized"});
                 return;
             }
-            console.log(`Rebooting V-NAS with UID ${req.body.uid}`);
-            const instance = await getInstanceByUID(req.body.uid);
-            await actionOnInstance(instance.id, 'reboot');
+            const uid = req.body.uid;
+            console.log(`Rebooting V-NAS with UID ${uid}`);
+            await actionOnInstance(uid, 'reboot');
+            await executeCommand(uid, 'docker-compose -p nasselle down');
+            await executeCommand(uid, 'docker-compose -p nasselle up -d');
+            await new Promise(resolve => setTimeout(resolve, 20000));
             res.json("done");
         } catch (e) {
             console.log(e);
@@ -46,11 +46,15 @@ expressApp.listen(port, () => {
                 res.status(401).json({error: "Unauthorized"});
                 return;
             }
-            console.log(`Rebooting V-NAS with UID ${req.body.uid}`);
-            const instance = await getInstanceByUID(req.body.uid);
-            const ip = instance.public_ip.address;
-            await executeCommand(ip, 'docker-compose -f /compose.yml pull');
-            await executeCommand(ip, 'docker-compose -f /compose.yml up -d');
+            let {signature, name, domain, uid}: {
+                signature: string,
+                name: string,
+                domain: string,
+                uid: string,
+            } = req.body;
+            console.log(`Rebooting V-NAS with UID ${uid}`);
+            const composeLocalPath = await createTmpDockerComposeFile(domain, name, uid, signature);
+            await runDockerComposeSetup(uid, composeLocalPath, '/compose.yml');//this do the update
             res.json("done");
         } catch (e) {
             console.log(e);
@@ -64,9 +68,9 @@ expressApp.listen(port, () => {
                 res.status(401).json({error: "Unauthorized"});
                 return;
             }
-            console.log(`Deleting V-NAS with UID ${req.body.uid}`);
-            const instance = await getInstanceByUID(req.body.uid);
-            await actionOnInstance(instance.id, 'terminate');
+            const uid = req.body.uid;
+            console.log(`Deleting V-NAS with UID ${uid}`);
+            await deleteInstance(uid);
             await new Promise(resolve => setTimeout(resolve, 5000));
             res.json("done");
         } catch (e) {
@@ -89,9 +93,9 @@ expressApp.listen(port, () => {
             } = req.body;
             console.log(`Creating V-NAS for ${name}@${domain} with uid ${uid}`);
             const composeLocalPath = await createTmpDockerComposeFile(domain, name, uid, signature);
-            const instance = await createInstance(uid);
-            const ip = instance.public_ip.address;
-            await runDockerCompose(ip,composeLocalPath, '/compose.yml');
+            await deleteInstance(uid);//in case it already exists
+            await createInstance(uid);
+            await runDockerComposeSetup(uid, composeLocalPath, '/compose.yml');
 
             res.json("done");
         } catch (e) {

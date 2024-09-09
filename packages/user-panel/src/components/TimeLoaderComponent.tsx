@@ -5,7 +5,7 @@ export const TimerLoadingBar: React.FC = () => {
     const [progress, setProgress] = useState(0);
 
     useEffect(() => {
-        const totalTime = 120000; // 2 minutes in milliseconds
+        const totalTime = 60000; // 1 minutes in milliseconds
         const interval = 1000; // 1 second interval
 
         const updateProgress = () => {
