@@ -13,6 +13,10 @@ interface EnvConfig {
     SCW_IMAGE: string;
     SSH_KEY: string;
 
+    B2_APPLICATION_KEY_NAME: string;
+    B2_APPLICATION_KEY_ID: string;
+    B2_APPLICATION_KEY: string;
+
 }
 
 export const config: EnvConfig = {
@@ -25,6 +29,10 @@ export const config: EnvConfig = {
     SCW_DEFAULT_PROJECT_ID: process.env.SCW_DEFAULT_PROJECT_ID,
     SCW_INSTANCE: process.env.SCW_INSTANCE,
     SCW_IMAGE: process.env.SCW_IMAGE,
-    SSH_KEY: process.env.SSH_KEY
+    SSH_KEY: process.env.SSH_KEY,
+
+    B2_APPLICATION_KEY_NAME: process.env.B2_APPLICATION_KEY_NAME,
+    B2_APPLICATION_KEY_ID: process.env.B2_APPLICATION_KEY_ID,
+    B2_APPLICATION_KEY: process.env.B2_APPLICATION_KEY,
 };
 

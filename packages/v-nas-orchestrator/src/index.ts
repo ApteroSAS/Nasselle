@@ -2,112 +2,101 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import express from "express";
 
-import {config} from "./EnvConfig.js";
-import {createTmpDockerComposeFile} from "./DockerCopmposeLib.js";
-import {
-    actionOnInstance,
-    createInstance, deleteInstance, executeCommand, runDockerComposeSetup
-} from "./ScalewayLib.js";
+import { config } from "./EnvConfig.js";
+import { ScalewayInstanceOperations } from "./providers/scaleway/ScalewayInstanceOperations.js";
+import {createBucket, createKey} from "./library/BackblazeLib.js";
 
-let expressApp = express();
+const expressApp = express();
 expressApp.use(bodyParser.json());
 expressApp.use(cors());
 
+const instanceOperations = new ScalewayInstanceOperations();
 
 let port = 8194;
 expressApp.listen(port, () => {
     let router = express.Router();
-    router.get('/version', (req, res) => {
+    router.get("/version", (req, res) => {
         res.json("1.0.0");
     });
 
-    router.post('/reboot', async (req, res) => {
+    router.post("/reboot", async (req, res) => {
         try {
             if (req.body.authToken !== config.KEY) {
-                res.status(401).json({error: "Unauthorized"});
+                res.status(401).json({ error: "Unauthorized" });
                 return;
             }
             const uid = req.body.uid;
-            console.log(`Rebooting V-NAS with UID ${uid}`);
-            await actionOnInstance(uid, 'reboot');
-            await executeCommand(uid, 'docker-compose -p nasselle down');
-            await executeCommand(uid, 'docker-compose -p nasselle up -d');
-            await new Promise(resolve => setTimeout(resolve, 20000));
-            res.json("done");
+            const result = await instanceOperations.reboot(uid);
+            res.json(result);
         } catch (e) {
             console.log(e);
-            res.status(500).json({error: e});
+            res.status(500).json({ error: e });
         }
     });
 
-    router.post('/update', async (req, res) => {
+    router.post("/update", async (req, res) => {
         try {
             if (req.body.authToken !== config.KEY) {
-                res.status(401).json({error: "Unauthorized"});
+                res.status(401).json({ error: "Unauthorized" });
                 return;
             }
-            let {signature, name, domain, uid}: {
-                signature: string,
-                name: string,
-                domain: string,
-                uid: string,
-            } = req.body;
-            console.log(`Rebooting V-NAS with UID ${uid}`);
-            const composeLocalPath = await createTmpDockerComposeFile(domain, name, uid, signature);
-            await runDockerComposeSetup(uid, composeLocalPath, '/compose.yml');//this do the update
-            res.json("done");
+            const { signature, name, domain, uid } = req.body;
+            const result = await instanceOperations.update({ signature, name, domain, uid });
+            res.json(result);
         } catch (e) {
             console.log(e);
-            res.status(500).json({error: e});
+            res.status(500).json({ error: e });
         }
     });
 
-    router.post('/delete', async (req, res) => {
+    router.post("/delete", async (req, res) => {
         try {
             if (req.body.authToken !== config.KEY) {
-                res.status(401).json({error: "Unauthorized"});
+                res.status(401).json({ error: "Unauthorized" });
                 return;
             }
             const uid = req.body.uid;
-            console.log(`Deleting V-NAS with UID ${uid}`);
-            await deleteInstance(uid);
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            res.json("done");
+            const result = await instanceOperations.delete(uid);
+            res.json(result);
         } catch (e) {
             console.log(e);
-            res.status(500).json({error: e});
+            res.status(500).json({ error: e });
         }
     });
 
-    router.post('/setup', async (req, res) => {
+    router.post("/setup", async (req, res) => {
         try {
             if (req.body.authToken !== config.KEY) {
-                res.status(401).json({error: "Unauthorized"});
+                res.status(401).json({ error: "Unauthorized" });
                 return;
             }
-            let {signature, name, domain, uid}: {
-                signature: string,
-                name: string,
-                domain: string,
-                uid: string,
-            } = req.body;
-            console.log(`Creating V-NAS for ${name}@${domain} with uid ${uid}`);
-            const composeLocalPath = await createTmpDockerComposeFile(domain, name, uid, signature);
-            try {
-                await deleteInstance(uid);//in case it already exists
-            } catch (e) {
-                /*ignore : will panic if nothing to delete*/
-            }
-            await createInstance(uid);
-            await runDockerComposeSetup(uid, composeLocalPath, '/compose.yml');
-
-            res.json("done");
+            const { signature, name, domain, uid } = req.body;
+            const result = await instanceOperations.setup({ signature, name, domain, uid });
+            res.json(result);
         } catch (e) {
             console.log(e);
-            res.status(500).json({error: e});
+            res.status(500).json({ error: e });
         }
     });
 
-    expressApp.use('/', router);
-    console.log('Listening on ' + port);
+    router.get("/b2_test", async (req, res) => {
+        console.log("b2_test");
+        // Main function to run the steps
+        try {
+            // Step 1: Create a new bucket
+            /*const bucketName = 'nsl-ad26qsd4f45qs622';
+            const bucket = await createBucket(bucketName);
+            console.log('Bucket created:', bucket);*/
+
+            // Step 2: Create a key to access the bucket
+            /*const bucket = {bucketId: '44240008df891d9797250f1b'};
+            const key = await createKey(bucket.bucketId);
+            console.log('Key created:', key.keyId, key.applicationKey);*/
+        } catch (error) {
+            console.error('Error in process:', error.message);
+        }
+    });
+
+    expressApp.use("/", router);
+    console.log("Listening on " + port);
 });

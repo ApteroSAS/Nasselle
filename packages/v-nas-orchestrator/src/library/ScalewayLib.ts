@@ -1,7 +1,7 @@
 import axios from 'axios';
-import {config} from "./EnvConfig.js";
+import {config} from "../EnvConfig.js";
 import {NodeSSH} from "node-ssh";
-import {Instance} from "./ScalewayInterface.js";
+import {Instance} from "../providers/scaleway/ScalewayInterface.js";
 
 export async function createInstance(uid: string): Promise<Instance> {
     // Create an instance and attach the reserved flexible IP
@@ -12,7 +12,7 @@ export async function createInstance(uid: string): Promise<Instance> {
             project: config.SCW_DEFAULT_PROJECT_ID,
             commercial_type: config.SCW_INSTANCE,
             image: config.SCW_IMAGE,
-            //enable_ipv6: true
+            dynamic_ip_required: false,
         },
         {
             headers: {
@@ -23,11 +23,11 @@ export async function createInstance(uid: string): Promise<Instance> {
     );
 
     let instance = response.data.server;
-    await reserveFlexibleIP(instance.id);
+    await reserveFlexibleIP(instance.id);//add ip
 
     await actionOnInstanceBySid(instance.id, 'poweron');
     instance = await getInstanceDetails(instance.id);
-    //console.log('Instance:', instance);
+    console.log('Created Instance:', instance);
     return instance;
 }
 
@@ -44,12 +44,19 @@ export async function deleteInstance(uid: string): Promise<void> {
 }
 
 export async function executeCommand(uid: string, command: string): Promise<void> {
-    const instances = await getInstanceByUID(uid);
-    if(instances.length !== 1) {
-        console.error(instances);
-        throw new Error(`Expected 1 instance but got ${instances.length}`);
+    const ssh = await sshConnect(uid);
+    try {
+        let result = await ssh.execCommand(command);
+        if (result.code !== 0) {
+            throw new Error(`stderr: ${result.stderr}`);
+        }
+    } catch (error) {
+        throw error;
+    } finally {
+        if(ssh) {
+            ssh.dispose(); // Always close the connection
+        }
     }
-    await executeCommandByIp(instances[0].public_ip.address, command);
 }
 
 export async function actionOnInstance(uid: string, action: 'poweron' | 'poweroff' | 'reboot' | 'terminate'): Promise<void> {
@@ -62,31 +69,8 @@ export async function actionOnInstance(uid: string, action: 'poweron' | 'powerof
 }
 
 export async function runDockerComposeSetup(uid: string, localComposePath: string, remoteComposePath: string) {
-    const instances = await getInstanceByUID(uid);
-    if (instances.length !== 1) {
-        console.error(instances);
-        throw new Error(`Expected 1 instance but got ${instances.length}`);
-    }
-    const instanceIp = instances[0].public_ip.address;
-    const ssh = new NodeSSH();
+    const ssh = await sshConnect(uid);
     try {
-        const retries = 10;
-        for (let attempt = 1; attempt <= retries; attempt++) {
-            let delay = 1000 * attempt;
-            try {
-                await ssh.connect({
-                    host: instanceIp,
-                    username: 'root',
-                    privateKey: config.SSH_KEY,
-                });
-            } catch (error) {
-                if (attempt === retries) {
-                    throw error; // Rethrow the error if it's the last attempt
-                }
-                console.log(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
-                await new Promise(res => setTimeout(res, delay)); // Wait before retrying
-            }
-        }
         // Use putFile to copy the file from local to remote
         await ssh.putFile(localComposePath, remoteComposePath);
         console.log('compose file send!');
@@ -104,11 +88,45 @@ export async function runDockerComposeSetup(uid: string, localComposePath: strin
     } catch (error) {
         throw error;
     } finally {
-        ssh.dispose(); // Always close the connection
+        if(ssh) {
+            ssh.dispose(); // Always close the connection
+        }
     }
 }
 
 // Helper function to create a temporary Docker Compose file
+
+async function sshConnect(uid: string): Promise<NodeSSH> {
+    const instances = await getInstanceByUID(uid);
+    try {
+        if (instances.length !== 1) {
+            throw new Error(`Expected 1 instance but got ${instances.length}`);
+        }
+        const instanceIp = instances[0].public_ip.address;
+        const ssh = new NodeSSH();
+        const retries = 10;
+        for (let attempt = 1; attempt <= retries; attempt++) {
+            let delay = 1000 * attempt;
+            try {
+                await ssh.connect({
+                    host: instanceIp,
+                    username: 'root',
+                    privateKey: config.SSH_KEY,
+                });
+            } catch (error) {
+                if (attempt === retries) {
+                    throw error; // Rethrow the error if it's the last attempt
+                }
+                console.log(`Attempt ${attempt} failed. Retrying in ${delay}ms...`);
+                await new Promise(res => setTimeout(res, delay)); // Wait before retrying
+            }
+        }
+        return ssh;
+    }catch (error){
+        console.error("instances :", instances);
+        throw error;
+    }
+}
 
 function servername(uid: string): string {
     return `nasselle-v-nas-${uid}`;
@@ -179,25 +197,6 @@ async function reserveFlexibleIP(server_uuid: string): Promise<string> {
     return ip.id;
 }
 
-async function executeCommandByIp(instanceIp: string, command: string) {
-    const ssh = new NodeSSH();
-    try {
-        await ssh.connect({
-            host: instanceIp,
-            username: 'root',
-            privateKey: config.SSH_KEY,
-        });
-        let result = await ssh.execCommand(command);
-        if (result.code !== 0) {
-            throw new Error(`stderr: ${result.stderr}`);
-        }
-    } catch (error) {
-        throw error;
-    } finally {
-        ssh.dispose(); // Always close the connection
-    }
-}
-
 async function getInstanceByUID(uid: string):Promise<Instance[]> {
     // Fetch instances filtered by name using the UID (assuming the UID is part of the instance name)
     const response = await axios.get(
@@ -210,7 +209,7 @@ async function getInstanceByUID(uid: string):Promise<Instance[]> {
         }
     );
 
-    const instances = response.data.servers;
+    let instances = response.data.servers;
 
     // If no instances are found
     if (instances.length === 0) {
@@ -224,5 +223,15 @@ async function getInstanceByUID(uid: string):Promise<Instance[]> {
         throw new Error(`Instance with UID ${uid} not found`);
     }
 
+    //filter out the instances with state_detail: 'terminating' || 'terminated' or  state: 'deleted'
+    instances = instances.filter((server: any) =>
+      server.state_detail !== 'terminating' &&
+      server.state_detail !== 'terminated' &&
+      server.state !== 'deleted' &&
+      server.state !== 'stopping' &&
+      server.state !== 'stopped in place' &&
+      server.state !== 'stopped' &&
+      server.state !== 'locked'
+    );
     return instances;
 }
