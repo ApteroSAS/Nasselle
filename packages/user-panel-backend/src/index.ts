@@ -71,45 +71,6 @@ expressApp.listen(port, () => {
         res.json(userRecord);
     });
 
-
-    /** is is a POC function used for the stellar nassel POC remove this funcion after  01/10/2024 */
-    router.post('/vnas/tmp/create', async (req, res) => {
-        try {
-            const {email,token,domainName,serverDomain} = req.body;
-            if(token !== "atLeastSomeMinimumSecurity123"){
-                throw new Error("Invalid token");
-            }
-            if (!domainName) {
-                throw new Error('User has no domain');
-            }
-            if (!serverDomain) {
-                throw new Error('User has no name');
-            }
-            const userRecord = await admin.auth().createUser({
-                email: email,
-                password: "secretpassword"
-            });
-            const uid = userRecord.uid;
-            console.log('Creating V-NAS for user', email);
-
-            const data: UserFB = {
-                domainName: domainName,
-                serverDomain: serverDomain
-            }
-            // Store the public key in Firestore
-            await admin.firestore().collection('users').doc(uid).set(data as any);
-
-            // Generate a Firebase custom token for the user
-            const customToken = tmpToken+uid;
-
-            // Return the custom token to the client
-            res.json({ status: 'success', token: customToken,uid:uid });
-        } catch (e) {
-            console.error(e);
-            res.status(500).json({err: e.toString()});
-        }
-    });
-
     router.post('/vnas/create', async (req, res) => {
         try {
             const uid = await verifyToken(req.headers.authorization);
