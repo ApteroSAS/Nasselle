@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 
-import {fetchFirebaseConfig} from "./configuration/FirebaseConfig";
+import {fetchFirebaseConfig} from "./configuration/providers/firebase/FirebaseConfig";
 
 (async () => {
     await fetchFirebaseConfig();

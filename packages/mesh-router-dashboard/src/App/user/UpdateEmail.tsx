@@ -10,7 +10,7 @@ import {
 import {Toolbar, useAuthProvider, useGetIdentity, useNotify, useUpdate} from 'react-admin';
 import { useForm } from 'react-hook-form';
 import { DialogCloseButton } from './DialogCloseButton';
-import {AuthProviderInterface} from "../../providers/AuthProviderInterface";
+import {AuthProviderInterface} from "../../configuration/providers/interface/AuthProviderInterface";
 
 const EMAIL_POLICY = {
     regex: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,

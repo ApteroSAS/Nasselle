@@ -33,17 +33,24 @@ expressApp.listen(port, () => {
     });
 
     router.post('/user/create', async (req, res) => {
-        const {email, password, data} = req.body;
-        let userRecord = await admin.auth().createUser({
-            email: email,
-            password: password,
-        });
+        try {
+            const {email, password} = req.body;
+            let userRecord = await admin.auth().createUser({
+                email: email,
+                password: password,
+            });
 
-        // Store the user data in Firestore
-        await admin.firestore().collection('users').doc(userRecord.uid).set(data);
-        await admin.firestore().collection('nsl-router').doc(userRecord.uid).set(data);
+            // Store the user data in Firestore
+            await admin.firestore().collection('users').doc(userRecord.uid).set({
+                permissions:["user"]
+            });
+            await admin.firestore().collection('nsl-router').doc(userRecord.uid).set({});
 
-        res.json(userRecord);
+            res.json(userRecord);
+        } catch (e) {
+            console.error( e.toString());
+            res.status(289).json({error: e.toString()});
+        }
     });
 
     //used by mesh router

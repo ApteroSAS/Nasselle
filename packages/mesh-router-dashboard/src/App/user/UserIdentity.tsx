@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useGetIdentity } from "react-admin";
-import {firebaseDataProvider} from "../../providers/FireBaseDataProvider";
+import {firebaseDataProvider} from "../../configuration/providers/firebase/FireBaseDataProvider";
 import {ResourceKey} from "../UsersResource";
 
 export interface UserIdentity {

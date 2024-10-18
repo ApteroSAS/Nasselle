@@ -13,7 +13,7 @@ import {
 import { usePermissions } from 'react-admin';
 import {panels} from "../../panels/Config";
 import {PanelInterface} from "../../panels/PanelInterface";
-import {app} from "../../providers/firebaseAuthProvider";
+import {app} from "../../configuration/providers/firebase/FirebaseAuthProvider";
 
 const MenuItem = (panel: PanelInterface, dense: boolean,translate:any) => {
     return <MenuItemLink

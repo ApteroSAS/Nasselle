@@ -13,8 +13,8 @@ import { Route } from 'react-router';
 import { Dashboard } from '../panels/dashboard';
 import {routes} from './routes';
 
-import { authProvider } from '../providers/firebaseAuthProvider';
-import { multiDataProvider, onNewResource } from '../providers/DataProvider';
+import { authProvider } from '../configuration/providers/firebase/FirebaseAuthProvider';
+import { multiDataProvider, onNewResource } from '../configuration/providers/interface/DataProvider';
 import { useState } from 'react';
 import {panels} from "../panels/Config";
 import { themes, ThemeName } from './themes/themes';
@@ -22,7 +22,7 @@ import { themes, ThemeName } from './themes/themes';
 import customEnglishMessages from "./i18n/en";
 import customFrenchMessages from "./i18n/fr";
 import {SettingsPage} from "./user/SettingsPage";
-import { SignupPage } from './pages/SignupPage';
+import { RegisterPage } from './pages/RegisterPage';
 import Login from './user/Login';
 import Layout from './layout/Layout';
 import {initializeDataProvider} from "../configuration/DataProviderConfig";
@@ -88,8 +88,14 @@ const App = () => {
             })}
             <CustomRoutes noLayout >
                 <Route
-                  path={SignupPage.path}
-                  element={<SignupPage />}
+                  path={RegisterPage.path}
+                  element={<RegisterPage />}
+                />
+            </CustomRoutes>
+            <CustomRoutes noLayout >
+                <Route
+                  path={"/getting-started"}
+                  element={<RegisterPage />}
                 />
             </CustomRoutes>
             <CustomRoutes>

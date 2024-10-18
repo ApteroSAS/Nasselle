@@ -2,7 +2,7 @@ import { TranslationMessages } from 'react-admin';
 
 // @ts-ignore
 export const customEnglishMessages: TranslationMessages = {
-    name: 'Hardware NAS |||| Hardware NAS',
+    name: 'Getting Started |||| Getting Started',
     notify: {
         saveSuccess: 'Public key and name saved successfully!',
         saveError: 'Error saving data',

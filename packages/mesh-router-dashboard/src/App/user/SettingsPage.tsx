@@ -17,7 +17,7 @@ import {useFormState} from 'react-hook-form';
 import {UpdatePassword} from './UpdatePassword';
 import ImageEditorField from './ImageEditorField';
 import {ResourceKey, USER_STORAGE_KEY} from "../UsersResource";
-import {AuthProviderInterface} from "../../providers/AuthProviderInterface";
+import {AuthProviderInterface} from "../../configuration/providers/interface/AuthProviderInterface";
 import {UpdateEmail} from "./UpdateEmail";
 
 export const SettingsPage = () => {

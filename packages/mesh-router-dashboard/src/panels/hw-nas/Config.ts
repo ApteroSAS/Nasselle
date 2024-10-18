@@ -1,4 +1,3 @@
-import RemoveFromQueue from '@mui/icons-material/RemoveFromQueue';
 import {routes} from "./Routes";
 import {PanelInterface} from "../PanelInterface";
 import {resourceName} from "./Constant";

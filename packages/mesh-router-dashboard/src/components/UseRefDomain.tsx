@@ -3,7 +3,7 @@ import {useUserIdentity} from "../App/user/UserIdentity";
 import {useEffect, useState} from "react";
 import {ResourceKey} from "../App/UsersResource";
 import {aw} from "vitest/dist/chunks/reporters.C_zwCd4j";
-import {app} from "../providers/firebaseAuthProvider";
+import {app} from "../configuration/providers/firebase/FirebaseAuthProvider";
 import {doc, getFirestore, onSnapshot} from "firebase/firestore";
 import {STORAGE_KEY} from "../configuration/NSLConfigResource";
 
@@ -11,14 +11,16 @@ export function useRefDomain(): {
     refDomain: string,
     serverDomain: string ,
     domainName: string,
+    isLoading: boolean,
     setDomainName: (domainName: string) => Promise<void>,
     setServerDomain: (serverDomain: string) => Promise<void>,
 } {
     const dataProvider = useDataProvider();
     const notify = useNotify();
-    const {data, isLoading} = useUserIdentity();
+    const {data, isLoading } = useUserIdentity();
     const userid = data?.id;
     const [domainName, setDomainName] = useState("");
+    const [isDomainLoading, setDomainLoading] = useState(true);
     const [serverDomain, setServerDomain] = useState("");
 
     useEffect(() => {
@@ -33,6 +35,7 @@ export function useRefDomain(): {
                     setServerDomain(serverDomain);
                 }
             }
+            setDomainLoading(false);
         });
 
         return () => unsub(); // Cleanup the listener when the component unmounts
@@ -56,6 +59,7 @@ export function useRefDomain(): {
                     setDomainName(initialDomainName);
                     setServerDomain('nsl.sh');
                 }
+                setDomainLoading(false);
             } catch (error) {
                 console.error("Failed to fetch provider details:", error);
                 notify('Failed to fetch provider details', {type: 'error'});
@@ -66,6 +70,7 @@ export function useRefDomain(): {
     }, [userid, isLoading]);
 
     return {
+        isLoading:isDomainLoading,
         refDomain:`${domainName}.${serverDomain}`,
         serverDomain,
         domainName,

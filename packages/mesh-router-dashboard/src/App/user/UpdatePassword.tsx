@@ -10,7 +10,7 @@ import {
 import {Toolbar, useAuthProvider, useGetIdentity, useNotify, useUpdate} from 'react-admin';
 import { useForm } from 'react-hook-form';
 import { DialogCloseButton } from './DialogCloseButton';
-import {AuthProviderInterface} from "../../providers/AuthProviderInterface";
+import {AuthProviderInterface} from "../../configuration/providers/interface/AuthProviderInterface";
 
 const PASSWORD_POLICY = {
     regex: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/, // Example policy: Minimum 8 characters, at least one letter and one number

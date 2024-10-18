@@ -1,4 +1,4 @@
-import {getBackendURL} from "./BackendURL";
+import {getBackendURL} from "../../BackendURL";
 
 export let firebaseConfig:{
     apiKey: string,

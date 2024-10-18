@@ -20,7 +20,7 @@ import {
     useLogin,
     useNotify,
 } from 'react-admin';
-import {SignupPage} from "../pages/SignupPage";
+import {RegisterPage} from "../pages/RegisterPage";
 
 const Login = () => {
     const [loading, setLoading] = useState(false);
@@ -137,7 +137,7 @@ const Login = () => {
                     color="primary"
                     disabled={loading}
                     fullWidth
-                    onClick={() => navigate(SignupPage.path)}
+                    onClick={() => navigate(RegisterPage.path)}
                   >
                     {loading && (
                       <CircularProgress size={25} thickness={2}/>
