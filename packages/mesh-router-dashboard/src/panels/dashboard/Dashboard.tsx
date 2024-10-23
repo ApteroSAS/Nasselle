@@ -6,7 +6,7 @@ import {ResourceKey} from '../../App/UsersResource';
 import {EntryPointLink} from "../../components/EntryPointLink";
 import {PageContainer} from "../../components/WrapperElement";
 import {Intro} from "../../components/Intro";
-import {STORAGE_KEY} from "../../configuration/NSLConfigResource";
+import {NSL_ROUTER} from "../../configuration/NSLConfigResource";
 
 export const Dashboard: React.FC = () => {
     const [loading, setLoading] = useState(true);
@@ -19,7 +19,7 @@ export const Dashboard: React.FC = () => {
 
         const fetchDomainName = async () => {
             try {
-                const userData = await dataProvider.getOne<any>(STORAGE_KEY, {id: identity.data.id} as any);
+                const userData = await dataProvider.getOne<any>(NSL_ROUTER, {id: identity.data.id} as any);
                 setDomainName(userData.data.domainName);
             } finally {
                 setLoading(false);

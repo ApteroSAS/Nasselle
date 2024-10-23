@@ -6,7 +6,7 @@ import { generateKeyPair } from "../library/KeyLib";
 import { ResourceKey } from '../App/UsersResource';
 import { useDataProvider, useNotify } from "react-admin";
 import { useUserIdentity } from "../App/user/UserIdentity";
-import {STORAGE_KEY} from "../configuration/NSLConfigResource";
+import {NSL_ROUTER} from "../configuration/NSLConfigResource";
 
 export const KeyManagement: FC = () => {
   const { data, isLoading, error } = useUserIdentity();
@@ -20,7 +20,7 @@ export const KeyManagement: FC = () => {
     if (userid) {
       (async () => {
         try {
-          const { data } = await dataProvider.getOne(STORAGE_KEY, { id: userid });
+          const { data } = await dataProvider.getOne(NSL_ROUTER, { id: userid });
           setPublicKey(data.pubkey);
         } catch (error) {
           console.error('Failed to fetch data:', error);
@@ -35,7 +35,7 @@ export const KeyManagement: FC = () => {
       setPublicKey(keys.pub);
       setPrivateKey(keys.priv);
       (window as any).privkey = keys.priv;
-      await dataProvider.update(STORAGE_KEY, { id: userid, data: { pubkey: keys.pub } } as any);
+      await dataProvider.update(NSL_ROUTER, { id: userid, data: { pubkey: keys.pub } } as any);
       notify('resources.api-management.notify.generateKeySuccess');
     } catch (error) {
       console.error('Key pair generation failed:', error);
@@ -46,7 +46,7 @@ export const KeyManagement: FC = () => {
   const handleSaveKeyPair = async () => {
     if (publicKey) {
       try {
-        await dataProvider.update(STORAGE_KEY, { id: userid, data: { pubkey: publicKey } } as any);
+        await dataProvider.update(NSL_ROUTER, { id: userid, data: { pubkey: publicKey } } as any);
         notify('resources.api-management.notify.saveKeySuccess');
         setPrivateKey(''); // Clear private key after saving
       } catch (error) {
@@ -60,7 +60,7 @@ export const KeyManagement: FC = () => {
 
   const handleDeleteKeyPair = async () => {
     try {
-      await dataProvider.update(STORAGE_KEY, { id: userid, data: { pubkey: '' } } as any);
+      await dataProvider.update(NSL_ROUTER, { id: userid, data: { pubkey: '' } } as any);
       setPublicKey('');
       setPrivateKey('');
       notify('resources.api-management.notify.deleteKeySuccess');

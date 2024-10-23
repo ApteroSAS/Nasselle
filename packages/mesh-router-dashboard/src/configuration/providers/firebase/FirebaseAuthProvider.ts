@@ -27,7 +27,9 @@ export const auth = getAuth();
 
 authProviderCopy.getIdentity = async () => {
   const user = await fbauthProvider.getIdentity();
-  console.log("id",user);
+  if(!user){
+    throw new Error("No user is currently signed in.");
+  }
   let userData = await firebaseDataProvider.getOne('users', {id: user.id});
   console.log("userData",userData);
   return {

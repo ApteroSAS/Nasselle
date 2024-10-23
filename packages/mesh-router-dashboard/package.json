@@ -30,7 +30,7 @@
         "dotenv": "^16.4.5",
         "fakerest": "^4.0.1",
         "fetch-mock": "~9.11.0",
-        "firebase": "^9.17.1",
+        "firebase": "^10.14.1",
         "graphql": "^15.6.0",
         "graphql-tag": "^2.12.6",
         "inflection": "^3.0.0",

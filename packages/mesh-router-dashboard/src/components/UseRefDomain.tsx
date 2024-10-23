@@ -5,7 +5,7 @@ import {ResourceKey} from "../App/UsersResource";
 import {aw} from "vitest/dist/chunks/reporters.C_zwCd4j";
 import {app} from "../configuration/providers/firebase/FirebaseAuthProvider";
 import {doc, getFirestore, onSnapshot} from "firebase/firestore";
-import {STORAGE_KEY} from "../configuration/NSLConfigResource";
+import {NSL_ROUTER} from "../configuration/NSLConfigResource";
 
 export function useRefDomain(): {
     refDomain: string,
@@ -27,7 +27,7 @@ export function useRefDomain(): {
         if (isLoading) return;
         if (!userid) return;
         const db = getFirestore(app);
-        const unsub = onSnapshot(doc(db, STORAGE_KEY, userid), (doc) => {
+        const unsub = onSnapshot(doc(db, NSL_ROUTER, userid), (doc) => {
             if (doc.exists()) {
                 const {domainName, serverDomain} = doc.data();
                 if (domainName && serverDomain) {
@@ -49,13 +49,13 @@ export function useRefDomain(): {
 
         const loadProviderDetails = async () => {
             try {
-                const response = await dataProvider.getOne(STORAGE_KEY, {id: userid});
+                const response = await dataProvider.getOne(NSL_ROUTER, {id: userid});
                 const {domainName, serverDomain} = response.data;
                 if (domainName && serverDomain) {
                     setDomainName(domainName);
                     setServerDomain(serverDomain);
                 } else {
-                    await dataProvider.update(STORAGE_KEY, {id: userid, data: {domainName: initialDomainName, serverDomain: 'nsl.sh'}} as any);
+                    await dataProvider.update(NSL_ROUTER, {id: userid, data: {domainName: initialDomainName, serverDomain: 'nsl.sh'}} as any);
                     setDomainName(initialDomainName);
                     setServerDomain('nsl.sh');
                 }
@@ -75,12 +75,16 @@ export function useRefDomain(): {
         serverDomain,
         domainName,
         setDomainName:async (domainName: string) => {
-            await dataProvider.update(STORAGE_KEY, {id: userid, data: {domainName}} as any);
+            await dataProvider.update(NSL_ROUTER, {id: userid, data: {domainName}} as any);
             setDomainName(domainName)
         },
         setServerDomain:async (serverDomain: string) => {
-            await dataProvider.update(STORAGE_KEY, {id: userid, data: {serverDomain}} as any);
+            await dataProvider.update(NSL_ROUTER, {id: userid, data: {serverDomain}} as any);
             setServerDomain(serverDomain)
         }
     };
 }
+
+/**
+ *
+ */

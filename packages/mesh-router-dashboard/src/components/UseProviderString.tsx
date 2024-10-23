@@ -43,6 +43,7 @@ export function useProviderString(): {
                 if (!pubkey && !privkey) {
                     await generateAndSetKeyPair(userid);
                 }
+                privkey = (window as any).privkey;
                 if(privkey) {
                     setSignature(await sign(privkey, userid));
                 }

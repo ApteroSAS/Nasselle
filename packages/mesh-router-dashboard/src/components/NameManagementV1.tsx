@@ -6,7 +6,7 @@ import { useDataProvider, useNotify } from 'react-admin';
 import { ResourceKey } from "../App/UsersResource";
 import { useUserIdentity } from "../App/user/UserIdentity";
 import {domainsSuffix} from "../configuration/WorkConfiguration";
-import {STORAGE_KEY} from "../configuration/NSLConfigResource";
+import {NSL_ROUTER} from "../configuration/NSLConfigResource";
 
 export const NameManagement: FC = () => {
   const [name, setName] = useState('');
@@ -22,7 +22,7 @@ export const NameManagement: FC = () => {
       setName(data.displayName.split('@')[0]);
       (async () => {
         try {
-          const { data } = await dataProvider.getOne(STORAGE_KEY, { id: userid });
+          const { data } = await dataProvider.getOne(NSL_ROUTER, { id: userid });
           setName(data.domainName);
           setServerDomain(data.serverDomain);
         } catch (error) {
@@ -36,7 +36,7 @@ export const NameManagement: FC = () => {
   const handleSaveName = async () => {
     if (userid && name && serverDomain) {
       try {
-        await dataProvider.update(STORAGE_KEY, {
+        await dataProvider.update(NSL_ROUTER, {
           id: userid,
           data: { domainName: name, serverDomain }
         } as any);

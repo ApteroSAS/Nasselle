@@ -13,13 +13,13 @@ import {useConfigurationContext} from "../ConfigurationContext";
 export const RegisterPage = () => {
   const {logo, title} = useConfigurationContext();
   return (
-    <Container sx={{p: 4, borderRadius: 2, boxShadow: 3, backgroundColor: 'white'}}>
-      <Stack
-        sx={{minHeight: '100vh', p: 2, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5'}}>
-        <Stack direction="row" alignItems="center" gap={1} sx={{mb: 4}}>
-          <img src={logo} alt={title} width={50}/>
-          <Typography component="span" variant="h5">{title}</Typography>
-        </Stack>
+    <Stack
+      sx={{minHeight: '100vh', p: 2, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5'}}>
+      <Stack direction="row" alignItems="center" gap={1} sx={{mb: 4}}>
+        <img src={logo} alt={title} width={50}/>
+        <Typography component="span" variant="h5">{title}</Typography>
+      </Stack>
+      <Container sx={{p: 4, borderRadius: 2, boxShadow: 3, backgroundColor: 'white'}}>
         <Onboarding>
           <SignUpStep stepName={'Sign Up'}/>
           <OnboardingStep stepName={'Docker install'} backButton={false}>
@@ -33,8 +33,8 @@ export const RegisterPage = () => {
             <EntryPointLink editMode={false}/>
           </OnboardingStep>
         </Onboarding>
-      </Stack>
-    </Container>);
+      </Container>
+    </Stack>);
 };
 
 RegisterPage.path = '/register';

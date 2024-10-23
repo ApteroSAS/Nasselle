@@ -1,5 +1,5 @@
 {
     "image" : "nsl-router-dashboard-backend",
     "registry" : "rg.fr-par.scw.cloud/aptero",
-    "version" : "1.0.0"
+    "version" : "1.1.0"
 }

@@ -1,1 +1,1 @@
-export const STORAGE_KEY = 'nsl-router';
+export const NSL_ROUTER = 'nsl-router';

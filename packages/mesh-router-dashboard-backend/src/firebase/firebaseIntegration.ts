@@ -10,11 +10,13 @@ const __dirname = path.dirname(__filename);
 const filePath = path.join(__dirname, '../../key/serviceAccount.json');
 const serviceAccount = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
-export const app = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+export function initializeFb(){
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
+}
 
-export async function getFbDoc<T>(userid:string,collection:string) {
+export async function getFbDoc<T>(collection:string,userid:string) {
   const db = admin.firestore();
   const usersRef = db.collection(collection);
   const document = await usersRef.doc(userid).get();

@@ -32,16 +32,21 @@ export const multiDataProvider = new Proxy<DataProvider>(defaultDataProvider, {
             return;
         }
         return async (resource: string, params: any) => {
-            console.log(`Data : ${resource} : ${action} : ${JSON.stringify(params)}`);
-            notifyRessource(resource);
-            let provider = null;
-            if (resourceResolver[resource]) {
-                provider = resourceResolver[resource][action];
-            } else {
-                //look at the configuration to add a provider for your resource
-                throw new Error('invalid data provider :' + resource);
+            try {
+                console.log(`Data : ${resource} : ${action} : ${JSON.stringify(params)}`);
+                notifyRessource(resource);
+                let provider = null;
+                if (resourceResolver[resource]) {
+                    provider = resourceResolver[resource][action];
+                } else {
+                    //look at the configuration to add a provider for your resource
+                    throw new Error('invalid data provider :' + resource);
+                }
+                return provider(resource, params);
+            }catch (e) {
+                console.error(e);
+                return null;
             }
-            return provider(resource, params);
         };
     },
 });
