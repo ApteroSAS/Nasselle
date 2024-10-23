@@ -1,1 +1,0 @@
-export const NSL_ROUTER = 'nsl-router';
