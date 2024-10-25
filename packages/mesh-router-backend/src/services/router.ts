@@ -84,8 +84,8 @@ export function routerAPI(expressApp: express.Application) {
       const user = document.data() as NSLRouterData;
 
       if (user) {
-        let {pubkey} = user;
-        const isValid = await verifySignature(pubkey, sig, userid)
+        let {publicKey} = user;
+        const isValid = await verifySignature(publicKey, sig, userid)
         console.log('Verifying signature for', req.params, isValid);
         if (isValid) {
           res.json({
@@ -126,7 +126,7 @@ export function routerAPI(expressApp: express.Application) {
       return res.status(200).json({
         domainName: userData.domainName,
         serverDomain: userData.serverDomain,
-        publicKey: userData.pubkey
+        publicKey: userData.publicKey
       });
     } catch (error) {
       console.error(error.toString());
@@ -141,7 +141,7 @@ export function routerAPI(expressApp: express.Application) {
    */
   router.post('/domain/:userid', authenticate, async (req: AuthUserRequest, res) => {
     const { userid } = req.params;
-    const { domainName, serverDomain = "nsl.sh", pubkey } = req.body; // Updated to 'pubkey'
+    const { domainName, serverDomain = "nsl.sh", publicKey } = req.body;
 
     try {
       // Ensure that the authenticated user matches the userid parameter
@@ -150,8 +150,8 @@ export function routerAPI(expressApp: express.Application) {
       }
 
       // At least one field must be present
-      if (!domainName && !serverDomain && !pubkey) { // Updated to 'pubkey'
-        return res.status(400).json({ error: "At least one of 'domainName', 'serverDomain', or 'pubkey' must be provided." });
+      if (!domainName && !serverDomain && !publicKey) {
+        return res.status(400).json({ error: "At least one of 'domainName', 'serverDomain', or 'publicKey' must be provided." });
       }
 
       const db = admin.firestore();
@@ -171,7 +171,7 @@ export function routerAPI(expressApp: express.Application) {
       const updateData: Partial<NSLRouterData> = {};
       if (domainName) updateData.domainName = domainName;
       if (serverDomain) updateData.serverDomain = serverDomain;
-      if (pubkey) updateData.pubkey = pubkey; // Updated to 'pubkey'
+      if (publicKey) updateData.publicKey = publicKey;
 
       // Update the user's document
       await userDocRef.set(updateData, { merge: true });

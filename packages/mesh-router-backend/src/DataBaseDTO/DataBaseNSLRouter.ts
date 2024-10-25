@@ -3,7 +3,7 @@ export const collectionName = "nsl-router";
 export interface NSLRouterData {
     serverDomain: string;
     domainName: string;
-    pubkey: string;
+    publicKey: string;
 
     //meta
     id?: string;

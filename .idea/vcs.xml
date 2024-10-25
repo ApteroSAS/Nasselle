@@ -13,6 +13,8 @@
     <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-MessageBus" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-UI" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/casa-img/CasaOS-UserService" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/mesh-dashboard" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/mesh-dashboard.old" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/mesh-router" vcs="Git" />
   </component>
 </project>
