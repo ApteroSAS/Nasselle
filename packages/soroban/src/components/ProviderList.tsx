@@ -1,28 +1,21 @@
-import {useState, useEffect} from 'react';
+import {useEffect, useState} from 'react';
 import {
+    Alert,
+    CircularProgress,
+    Paper,
     Table,
     TableBody,
     TableCell,
     TableContainer,
     TableHead,
     TableRow,
-    Paper,
-    CircularProgress,
-    Alert,
     TextField
 } from '@mui/material';
-import nasselle_contract from '../contracts/nasselle_contract';
 import ReserveButton from './ReserveButton.tsx';
 import {TimerLoadingBar} from "./TimeLoaderComponent.tsx";
 import {vnasAction} from "../service/VNASService.ts";
-
-// Define the provider type properly for clarity
-type Provider = {
-    provider_name: string;
-    provider_url: string;
-};
-
-type ProviderListType = [string, Provider][]; // Array of tuple, where the first value is a string (ID), and the second is a Provider object
+import type {Provider} from "./Provider.tsx";
+import {listProviders, type ProviderListType} from "../service/listProviders.ts";
 
 // Define the prop type for the component
 type ProviderListProps = {
@@ -30,7 +23,7 @@ type ProviderListProps = {
 };
 
 const ProviderList: React.FC<ProviderListProps> = ({onProvided}) => {
-    const [providers, setProviders] = useState<ProviderListType>([]);
+    const [providers, setProviders] = useState<ProviderListType>(new Map());
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(true); // Add loading state
     const [loading2, setLoading2] = useState<boolean>(false); // Add loading state
@@ -41,14 +34,7 @@ const ProviderList: React.FC<ProviderListProps> = ({onProvided}) => {
         const fetchProviders = async () => {
             try {
                 setLoading(true); // Start loading
-                const response = await nasselle_contract.list_providers();
-                // Explicitly type-check the result to avoid runtime issues
-                if (response && Array.isArray(response.result)) {
-                    const res: ProviderListType = response.result;
-                    setProviders(res);
-                } else {
-                    throw new Error('Unexpected response format');
-                }
+                setProviders(await listProviders());
             } catch (err) {
                 console.error('Failed to fetch providers:', err);
                 setError('Failed to load providers. Please try again later.');
@@ -90,11 +76,10 @@ const ProviderList: React.FC<ProviderListProps> = ({onProvided}) => {
                 {!loading && !error && (<>
                     {/* Add a TextField for reserved domain name */}
                     <TextField
-                        style={{margin: '20px'}}
+                        style={{margin: '20px', width: '80%'}}
                         label="Here, Select a domain name that you like"
                         value={domain}
                         onChange={handleDomainChange}
-                        fullWidth
                         margin="normal"
                     />
                     <TableContainer component={Paper}>
@@ -111,8 +96,9 @@ const ProviderList: React.FC<ProviderListProps> = ({onProvided}) => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {providers.map(([id, provider]) => (
-                                    <TableRow key={id}>
+                                {Array.from(providers.keys()).map((id) => {
+                                    const provider = providers.get(id) as Provider;
+                                    return <TableRow key={id}>
                                         <TableCell>{provider.provider_name}</TableCell>
                                         <TableCell>
                                             <a href={"https://" + provider.provider_url} target="_blank"
@@ -120,10 +106,10 @@ const ProviderList: React.FC<ProviderListProps> = ({onProvided}) => {
                                                 {domain + "." + provider.provider_url}
                                             </a>
                                         </TableCell>
-                                        <TableCell>8GB</TableCell> {/* Hardcoded RAM */}
-                                        <TableCell>500GB</TableCell> {/* Hardcoded Storage */}
-                                        <TableCell>4</TableCell> {/* Hardcoded CPU */}
-                                        <TableCell>215 XML</TableCell> {/* Hardcoded CPU */}
+                                        <TableCell>{provider.ram || "8GB"}</TableCell> {/* Hardcoded RAM */}
+                                        <TableCell>{provider.storage || "500GB"} </TableCell> {/* Hardcoded Storage */}
+                                        <TableCell>{provider.cpu || "4"}</TableCell> {/* Hardcoded CPU */}
+                                        <TableCell>{provider.price || "215 XML"}</TableCell> {/* Hardcoded CPU */}
 
                                         <TableCell>
                                             <ReserveButton disabled={!domain} price={215} name={domain}
@@ -131,7 +117,7 @@ const ProviderList: React.FC<ProviderListProps> = ({onProvided}) => {
                                                            onProviderReserved={allocateProvider}/>
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                })}
                             </TableBody>
                         </Table>
                     </TableContainer>

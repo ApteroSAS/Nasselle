@@ -130,7 +130,11 @@ const Login = () => {
                     {translate('ra.auth.sign_in')}
                   </Button>
                 </CardActions>
-                <CardActions sx={{padding: '0 1em 1em 1em'}}>
+
+
+                  {/*
+                  Temporarily removed the sign up button
+                  <CardActions sx={{padding: '0 1em 1em 1em'}}>
                   <Button
                     variant="contained"
                     type="button"
@@ -144,7 +148,7 @@ const Login = () => {
                     )}
                     {translate('auth.sign_up')}
                   </Button>
-                </CardActions>
+                </CardActions>*/}
               </Card>
             </Box>
         </Form>

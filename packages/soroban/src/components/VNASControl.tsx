@@ -49,6 +49,10 @@ const CancelReservationButton: React.FC<ReserveButtonProps> = ({onChange}) => {
 
             await vnasAction(action);
 
+            if (onChange) {
+                setTimeout(onChange, 5000);
+            }
+
         } catch (e) {
             console.error(e);
         } finally {

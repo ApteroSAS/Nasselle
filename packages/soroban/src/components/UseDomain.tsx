@@ -1,17 +1,13 @@
 import { useState, useEffect } from 'react';
 import nasselle_contract from '../contracts/nasselle_contract';
 import { getAddress } from "../service/stellar-wallets-kit.ts";
+import {listProviders} from "../service/listProviders.ts";
 
 type ReservedInstanceInfo = {
     amount: number;
     id: number;
     provider_name: string;
     reserved_name: string;
-};
-
-type ProviderInfo = {
-    provider_url: string;
-    provider_name: string;
 };
 
 type DomainInfo = {
@@ -32,8 +28,7 @@ export const useDomain = (): {
             const instanceMap = new Map<string, ReservedInstanceInfo>(instance.result as any);
             if (instanceMap.has(address)) {
                 const provider = instanceMap.get(address) as ReservedInstanceInfo;
-                const providers = await nasselle_contract.list_providers();
-                const providersMap = new Map<string, ProviderInfo>(providers.result as any);
+                const providersMap = await listProviders();
                 if (providersMap.has(provider.provider_name)) {
                     const providerEntry = providersMap.get(provider.provider_name);
                     if (providerEntry?.provider_url) {

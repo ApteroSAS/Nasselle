@@ -19,9 +19,9 @@ const ProviderPanel: React.FC = () => {
         <div>
             {!connected && <>
                 <p className="instructions">
-                    Nasselle offers seamless, secure, and scalable network-attached storage management solutions.
-                    Perfect for Tech Enthusiasts, Small to Medium Businesses, and anyone looking to enhance their data
-                    management and security.
+                    Nasselle offers decentralised Home Server (NAS) for personal cloud and cloud storage.
+                    Perfect for Tech Enthusiasts, Small Businesses, and anyone looking to enhance their data
+                    management and security using web3 and Stellar.
                 </p>
                 <ConnectWallet onConnected={() => {
                     setConnected(true);

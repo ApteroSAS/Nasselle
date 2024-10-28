@@ -2,17 +2,12 @@ import React, { useState } from 'react';
 import { getAddress, kit, loadedPublicKey } from '../service/stellar-wallets-kit.ts';
 import nasselle_contract from '../contracts/nasselle_contract';
 import {createUser} from "../service/VNASService.ts";
-
-// Define the provider prop type
-type Provider = {
-    provider_name: string;
-    provider_url: string;
-};
+import type {Provider} from "./Provider.tsx";
 
 // Update the ReserveButton to accept props
 interface ReserveButtonProps {
     provider: Provider;
-    onProviderReserved?: (provider: Provider, name: string) => void;
+    onProviderReserved?: (provider: Provider) => void;
     disabled?: boolean;
     name: string;
     price: number;
@@ -53,7 +48,7 @@ const ReserveButton: React.FC<ReserveButtonProps> = ({ name,provider,onProviderR
             });
 
             if (onProviderReserved) {
-                onProviderReserved(provider,name);
+                onProviderReserved(provider);
             }
         } catch (e) {
             console.error(e);

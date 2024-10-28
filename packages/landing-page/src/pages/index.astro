@@ -2,22 +2,26 @@
 import Layout from '~/layouts/PageLayout.astro';
 
 import Hero from '~/components/widgets/Hero.astro';
-import Note from '~/components/widgets/Note.astro';
-import Features from '~/components/widgets/Features.astro';
 import Features2 from '~/components/widgets/Features2.astro';
 import Steps from '~/components/widgets/Steps.astro';
 import Content from '~/components/widgets/Content.astro';
-import BlogLatestPosts from '~/components/widgets/BlogLatestPosts.astro';
-import FAQs from '~/components/widgets/FAQs.astro';
-import Stats from '~/components/widgets/Stats.astro';
 import CallToAction from '~/components/widgets/CallToAction.astro';
 import ImageCarousel from '~/components/widgets/ImageCarousel.astro';
+import WidgetWrapper from "../components/ui/WidgetWrapper.astro";
 
 const metadata = {
   title: 'Nasselle — NAS As A Service',
   ignoreTitleTemplate: true,
 };
 ---
+
+<script>
+  (function () {
+    if (window.location.host !== 'nasselle.com' && window.location.host !== 'www.nasselle.com' && window.location.host !== 'localhost:4322') {
+      window.location.href = 'https://nasselle.com';
+    }
+  })();
+</script>
 
 <Layout metadata={metadata}>
   <!-- Hero Widget ******************* -->
@@ -35,7 +39,7 @@ const metadata = {
         href: '#features'
       }
     ]}
-    image={{ src: '~/assets/images/nasselle-hero-image.png', alt: 'Nasselle Service Hero Image' }}
+    image={{src: '~/assets/images/nasselle-hero-image.png', alt: 'Nasselle Service Hero Image'}}
   >
     <Fragment slot="title">
       Empower Your Data with <span class="text-accent dark:text-white highlight"> Nasselle </span> <br/> <span>NAS-as-a-Service</span>
@@ -46,12 +50,13 @@ const metadata = {
       <span class="font-semibold">Nasselle</span> offers seamless, secure, and scalable network-attached storage management solutions.</span
     >
       <span class="block mb-1 sm:hidden font-bold text-blue-600">Nasselle: Your cloud, your rules.</span>
-      Perfect for Tech Enthusiasts, Small to Medium Businesses, and anyone looking to enhance their data management and security.
+      Perfect for Tech Enthusiasts, Small to Medium Businesses, and anyone looking to enhance their data management and
+      security.
     </Fragment>
   </Hero>
-  
+
   <!-- Note Widget ******************* -->
-  
+
   <ImageCarousel id="homepage-carousel" items={[
     {
       image: '~/assets/images/casaos/casa-os-screenshot-1.png',
@@ -68,10 +73,19 @@ const metadata = {
       title: 'File Manager',
       description: 'CasaOS includes a powerful File Manager that allows you to organize and manage your files with ease.'
     }
-  ]} interval={5000} isDark={true} />
+  ]} interval={5000} isDark={true}/>
 
   <!--<Note />-->
 
+  <WidgetWrapper>
+    <div class="mx-auto max-w-7xl p-4 md:px-8 flex justify-center items-center" style="height: 80vh">
+      <iframe width="80%" height="80%" src="https://www.youtube.com/embed/AveA38EW09g?si=Lh-ciMUfuhZqmohy"
+              title="YouTube video player" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+  </WidgetWrapper>
+  
   <!-- Features Widget *************** -->
   <Content
     isReversed
@@ -103,7 +117,8 @@ const metadata = {
     <Fragment slot="content">
       <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Streamlined Domain Routing</h3>
       <p>
-        Nasselle provides robust domain configuration, ensuring secure and convenient access to your NAS and its services over the internet.
+        Nasselle provides robust domain configuration, ensuring secure and convenient access to your NAS and its
+        services over the internet.
       </p>
     </Fragment>
 
@@ -111,7 +126,6 @@ const metadata = {
       <div class="absolute inset-0 bg-blue-50 dark:bg-transparent"></div>
     </Fragment>
   </Content>
-
 
   <Content
     id="security"
@@ -153,20 +167,20 @@ const metadata = {
     isReversed
     id="anonymity"
     items={[
-    {
-      title: 'Invisible on the Web',
-      description:
-      'Your NAS is not directly exposed to the internet; it connects only through secure tunnels to the Nasselle servers, ensuring complete privacy.',
+      {
+        title: 'Invisible on the Web',
+        description:
+          'Your NAS is not directly exposed to the internet; it connects only through secure tunnels to the Nasselle servers, ensuring complete privacy.',
       },
-    {
-      title: 'Secure Tunnels',
-      description:
-      'Traffic to and from your NAS is routed through encrypted tunnels, isolating it from public access and potential threats.',
+      {
+        title: 'Secure Tunnels',
+        description:
+          'Traffic to and from your NAS is routed through encrypted tunnels, isolating it from public access and potential threats.',
       },
-    {
-      title: 'Anonymity and Privacy',
-      description:
-      'With Nasselle’s VPN services, maintain anonymity and protect your identity while accessing or managing your NAS remotely.',
+      {
+        title: 'Anonymity and Privacy',
+        description:
+          'With Nasselle’s VPN services, maintain anonymity and protect your identity while accessing or managing your NAS remotely.',
       },
     ]}
     image={{
@@ -177,7 +191,8 @@ const metadata = {
     <Fragment slot="content">
       <h3 class="text-2xl font-bold tracking-tight dark:text-white sm:text-3xl mb-2">Complete Privacy with Nasselle</h3>
       <p>
-        Nasselle takes privacy seriously, using advanced encryption and secure connections to protect your NAS and ensure it remains your private cloud.
+        Nasselle takes privacy seriously, using advanced encryption and secure connections to protect your NAS and
+        ensure it remains your private cloud.
       </p>
     </Fragment>
 
@@ -223,7 +238,9 @@ const metadata = {
     }}
   >
     <Fragment slot="additional-info">
-      <p>For more detailed instructions and setup tips, check out our comprehensive guide on <a href="#" class="text-accent">Medium</a>.</p>
+      <p>For more detailed instructions and setup tips, check out our comprehensive guide on <a href="#"
+                                                                                                class="text-accent">Medium</a>.
+      </p>
     </Fragment>
   </Steps>
 
@@ -267,10 +284,8 @@ const metadata = {
   </Features2>
 
 
-  
-  
   <!-- Stats Widget ****************** -->
-  
+
   <!-- HighlightedPosts Widget ******* -->
 
   <CallToAction
@@ -285,7 +300,7 @@ const metadata = {
     ]}
   >
     <Fragment slot="title">
-      Unlock Your NAS Potential <br />with Nasselle
+      Unlock Your NAS Potential <br/>with Nasselle
     </Fragment>
 
     <Fragment slot="subtitle">

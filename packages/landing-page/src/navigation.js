@@ -36,7 +36,7 @@ export const headerData = {
         },
         {
           text: 'Medium',
-          href: "https://aptero-co.medium.com/",
+          href: "https://medium.com/@nasselle",
         },
       ],
     },
@@ -45,12 +45,36 @@ export const headerData = {
       links: [
         {
           text: 'Discord',
-          href: "https://discord.gg/QDYHdpYw",
+          href: "https://discord.gg/j49sKn7AHK",
+        },
+        {
+          text: 'Medium',
+          href: "https://medium.com/@nasselle",
         },
         {
           text: 'GitHub',
           href: "https://github.com/ApteroSAS",
         },
+        {
+          text: 'Mesh Router',
+            href: "https://github.com/worph/mesh-router",
+        },
+        {
+          text: 'Casa IMG',
+          href: "https://github.com/worph/casa-img",
+        },
+        {
+          text: 'Docker Hub',
+          href: "https://hub.docker.com/u/nasselle",
+        },
+        {
+          text: 'Aptero (Company)',
+          href: "https://aptero.co",
+        },
+        {
+          text: 'Youtube',
+          href: "https://www.youtube.com/@apteroco6480",
+        }
       ],
     },
     {
