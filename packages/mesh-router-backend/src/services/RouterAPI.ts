@@ -183,5 +183,28 @@ export function routerAPI(expressApp: express.Application) {
     }
   });
 
+  router.delete('/domain/:userid', authenticate, async (req: AuthUserRequest, res) => {
+    const { userid } = req.params;
+
+    try {
+      // Ensure that the authenticated user matches the userid parameter
+      if (!req.user || req.user.uid !== userid) {
+        return res.status(403).json({ error: "Unauthorized to modify this user." });
+      }
+
+      const db = admin.firestore();
+      const nslRouterCollection = db.collection(NSL_ROUTER_COLLECTION);
+      const userDocRef = nslRouterCollection.doc(userid);
+
+      // Update the user's document
+      await userDocRef.delete();
+
+      return res.status(200).json({ message: "Domain information deleted successfully." });
+    } catch (error) {
+      console.error("Error in POST /domain/:userid:", error);
+      return res.status(500).json({ error: error.toString() });
+    }
+  });
+
   expressApp.use('/', router);
 }

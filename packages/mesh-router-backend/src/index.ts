@@ -5,7 +5,7 @@ import express from "express";
 //console.log(BUILD_VERSION);
 
 import {initializeFb} from "./firebase/firebaseIntegration.js";
-import {routerAPI} from "./services/router.js";
+import {routerAPI} from "./services/RouterAPI.js";
 
 let expressApp = express();
 expressApp.use(bodyParser.json());
