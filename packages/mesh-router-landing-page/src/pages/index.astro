@@ -21,15 +21,26 @@ const metadata = {
 
 ---
 
-<script>
-  // if the page is a sub domain redirect to the sub domain page /claim
-  console.log(window.location.hostname.split('.').length);
-  if (typeof window !== 'undefined') {
-    if (window.location.hostname.split('.').length > 2) {
-      window.location.href = `/claim/`;
-    }
-  }
+<!-- Google tag (gtag.js) -->
+<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-41BYRP9L1G"></script>
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-41BYRP9L1G');
 </script>
+<script is:inline>
+  console.log("executing preflight script");
+  document.addEventListener('DOMContentLoaded', function () {
+    if (typeof window !== 'undefined') {
+      if (window.location.hostname.split('.').length > 2) {
+        window.location.href = `/claim/`;
+      }
+    }
+  });
+</script>
+
 
 <Layout metadata={metadata}>
   <!-- Hero Widget ******************* -->
