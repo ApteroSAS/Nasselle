@@ -1,2 +1,4 @@
 tmp
 packages/soroban/.idea/
+**/node_modules
+node_modules
