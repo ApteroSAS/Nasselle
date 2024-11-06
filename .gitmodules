@@ -9,9 +9,3 @@
 [submodule "packages/AppStore"]
 	path = packages/AppStore
 	url = https://github.com/worph/AppStore.git
-[submodule "packages/mesh-dashboard"]
-	path = packages/mesh-dashboard
-	url = https://github.com/ApteroSAS/mesh-dashboard.git
-[submodule "packages/dashboard-core"]
-	path = packages/dashboard-core
-	url = https://github.com/ApteroSAS/dashboard-core
