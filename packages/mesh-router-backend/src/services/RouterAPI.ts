@@ -1,9 +1,8 @@
 import express from "express";
 import admin from "firebase-admin";
 import {sign, verifySignature} from "../library/KeyLib.js";
-import {getFbDoc} from "../firebase/firebaseIntegration.js";
 import {NSLRouterData} from "../DataBaseDTO/DataBaseNSLRouter.js";
-import {authenticate, AuthUserRequest} from "../firebase/ExpressAuthenticateMiddleWare.js";
+import {authenticate, AuthUserRequest} from "./ExpressAuthenticateMiddleWare.js";
 
 /*
 full domain = domainName+"."+serverDomain
@@ -34,11 +33,6 @@ async function checkAvailability(domain: string): Promise<boolean> {
 
 export function routerAPI(expressApp: express.Application) {
   let router = express.Router();
-
-  //TODO remove this
-  router.get('/test',authenticate,(req:AuthUserRequest, res) => {
-    req.user ? res.json({user: req.user}) : res.json({error: "no user"});
-  });
 
   /**
    * GET /available/:domain
@@ -139,24 +133,15 @@ export function routerAPI(expressApp: express.Application) {
    * Updates or sets the domain information for the specified user.
    * Requires authentication.
    */
-  router.post('/domain/:userid', authenticate, async (req: AuthUserRequest, res) => {
-    const { userid } = req.params;
-    const { domainName, serverDomain = "nsl.sh", publicKey } = req.body;
+  router.post('/domain', authenticate, async (req: AuthUserRequest, res) => {
+    const { domainName, serverDomain = "nsl.sh", publicKey, source } = req.body;
 
     try {
-      // Ensure that the authenticated user matches the userid parameter
-      if (!req.user || req.user.uid !== userid) {
-        return res.status(403).json({ error: "Unauthorized to modify this user." });
-      }
-
+      const userid  = req.user.uid;
       // At least one field must be present
       if (!domainName && !serverDomain && !publicKey) {
         return res.status(400).json({ error: "At least one of 'domainName', 'serverDomain', or 'publicKey' must be provided." });
       }
-
-      const db = admin.firestore();
-      const nslRouterCollection = db.collection(NSL_ROUTER_COLLECTION);
-      const userDocRef = nslRouterCollection.doc(userid);
 
       // If domainName is being updated, check its availability
       if (domainName) {
@@ -167,30 +152,31 @@ export function routerAPI(expressApp: express.Application) {
         }
       }
 
+      const db = admin.firestore();
+      const nslRouterCollection = db.collection(NSL_ROUTER_COLLECTION);
+      const userDocRef = nslRouterCollection.doc(userid);
+
       // Prepare the update object
       const updateData: Partial<NSLRouterData> = {};
       if (domainName) updateData.domainName = domainName;
       if (serverDomain) updateData.serverDomain = serverDomain;
       if (publicKey) updateData.publicKey = publicKey;
+      if (source) updateData.source = source;
 
       // Update the user's document
       await userDocRef.set(updateData, { merge: true });
 
       return res.status(200).json({ message: "Domain information updated successfully." });
     } catch (error) {
-      console.error("Error in POST /domain/:userid:", error);
+      console.error("Error in POST /domain", error);
       return res.status(500).json({ error: error.toString() });
     }
   });
 
-  router.delete('/domain/:userid', authenticate, async (req: AuthUserRequest, res) => {
-    const { userid } = req.params;
+  router.delete('/domain', authenticate, async (req: AuthUserRequest, res) => {
 
     try {
-      // Ensure that the authenticated user matches the userid parameter
-      if (!req.user || req.user.uid !== userid) {
-        return res.status(403).json({ error: "Unauthorized to modify this user." });
-      }
+      const userid  = req.user.uid;
 
       const db = admin.firestore();
       const nslRouterCollection = db.collection(NSL_ROUTER_COLLECTION);
@@ -201,7 +187,7 @@ export function routerAPI(expressApp: express.Application) {
 
       return res.status(200).json({ message: "Domain information deleted successfully." });
     } catch (error) {
-      console.error("Error in POST /domain/:userid:", error);
+      console.error("Error in DELETE /domain", error);
       return res.status(500).json({ error: error.toString() });
     }
   });

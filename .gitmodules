@@ -13,3 +13,7 @@
 	path = packages/mesh-dashboard-root
 	url = https://github.com/ApteroSAS/mesh-dashboard-root.git
 	branch = main
+[submodule "packages/v-nas-dashboard"]
+	path = packages/v-nas-dashboard
+	url = https://github.com/ApteroSAS/v-nas-dashboard.git
+	branch = main

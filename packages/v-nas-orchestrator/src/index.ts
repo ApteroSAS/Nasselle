@@ -4,7 +4,6 @@ import express from "express";
 
 import { config } from "./EnvConfig.js";
 import { ScalewayInstanceOperations } from "./providers/scaleway/ScalewayInstanceOperations.js";
-import {createBucket, createKey} from "./library/BackblazeLib.js";
 
 const expressApp = express();
 expressApp.use(bodyParser.json());
@@ -76,24 +75,6 @@ expressApp.listen(port, () => {
         } catch (e) {
             console.log(e);
             res.status(500).json({ error: e });
-        }
-    });
-
-    router.get("/b2_test", async (req, res) => {
-        console.log("b2_test");
-        // Main function to run the steps
-        try {
-            // Step 1: Create a new bucket
-            /*const bucketName = 'nsl-ad26qsd4f45qs622';
-            const bucket = await createBucket(bucketName);
-            console.log('Bucket created:', bucket);*/
-
-            // Step 2: Create a key to access the bucket
-            /*const bucket = {bucketId: '44240008df891d9797250f1b'};
-            const key = await createKey(bucket.bucketId);
-            console.log('Key created:', key.keyId, key.applicationKey);*/
-        } catch (error) {
-            console.error('Error in process:', error.message);
         }
     });
 

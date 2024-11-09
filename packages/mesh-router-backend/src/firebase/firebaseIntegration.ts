@@ -7,7 +7,7 @@ import { fileURLToPath } from 'url';
 // Convert the module URL to a file path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const filePath = path.join(__dirname, '../../key/serviceAccount.json');
+const filePath = path.join(__dirname, '../../config/serviceAccount.json');
 const serviceAccount = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
 export function initializeFb(){

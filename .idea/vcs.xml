@@ -17,5 +17,7 @@
     <mapping directory="$PROJECT_DIR$/packages/mesh-dashboard-root/dashboard-core" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/mesh-dashboard-root/mesh-dashboard" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/packages/mesh-router" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/v-nas-dashboard" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/packages/v-nas-dashboard/dashboard-core" vcs="Git" />
   </component>
 </project>

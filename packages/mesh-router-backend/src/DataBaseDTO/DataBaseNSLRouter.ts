@@ -4,6 +4,7 @@ export interface NSLRouterData {
     serverDomain: string;
     domainName: string;
     publicKey: string;
+    source?: string;
 
     //meta
     id?: string;

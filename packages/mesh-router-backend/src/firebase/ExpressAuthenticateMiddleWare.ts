@@ -1,13 +1,7 @@
 // Authentication middleware
 import admin from "firebase-admin";
 
-export interface AuthUserRequestInt {
-  user: admin.auth.DecodedIdToken;
-}
-
-export type AuthUserRequest = Partial<AuthUserRequestInt> | any;
-
-export const authenticate = async (req, res, next) => {
+export const firebaseUserAuthenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -18,7 +12,9 @@ export const authenticate = async (req, res, next) => {
 
   try {
     const decodedToken = await admin.auth().verifyIdToken(idToken);
-    req.user = decodedToken; // Attach user info to request object
+    req.user = {
+      uid:decodedToken.uid
+    };
     next();
   } catch (error) {
     console.error("Error verifying ID token:", error);
