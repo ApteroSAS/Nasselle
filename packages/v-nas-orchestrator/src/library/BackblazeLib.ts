@@ -2,8 +2,8 @@ import axios from 'axios';
 import {config} from "../EnvConfig.js";
 
 // Define your Backblaze B2 credentials
-const B2_APPLICATION_KEY_ID = config.B2_APPLICATION_KEY_ID;
-const B2_APPLICATION_KEY = config.B2_APPLICATION_KEY;
+const B2_APPLICATION_KEY_ID = "config.B2_APPLICATION_KEY_ID";
+const B2_APPLICATION_KEY = "config.B2_APPLICATION_KEY"
 
 // Type for the authorization response
 interface AuthResponse {

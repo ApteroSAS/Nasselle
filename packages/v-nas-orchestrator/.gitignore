@@ -26,4 +26,6 @@ yarn-debug.log*
 yarn-error.log*
 /.idea
 
-key/**.json
+config/**.json
+
+.env

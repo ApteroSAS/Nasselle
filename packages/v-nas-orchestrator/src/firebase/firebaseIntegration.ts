@@ -7,17 +7,11 @@ import { fileURLToPath } from 'url';
 // Convert the module URL to a file path
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const filePath = path.join(__dirname, '../../key/serviceAccount.json');
+const filePath = path.join(__dirname, '../../config/serviceAccount.json');
 const serviceAccount = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
 
-export const app = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
-
-// Firestore database reference
-export async function getUser(userid:string) {
-  const db = admin.firestore();
-  const usersRef = db.collection('users');
-  const document = await usersRef.doc(userid).get();
-  return document.data();
+export function initializeFb(){
+  admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+  });
 }

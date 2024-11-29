@@ -15,10 +15,3 @@ export function initializeFb(){
     credential: admin.credential.cert(serviceAccount)
   });
 }
-
-export async function getFbDoc<T>(collection:string,userid:string) {
-  const db = admin.firestore();
-  const usersRef = db.collection(collection);
-  const document = await usersRef.doc(userid).get();
-  return document.data() as T;
-}

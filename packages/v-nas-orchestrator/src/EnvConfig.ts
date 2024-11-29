@@ -2,8 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 interface EnvConfig {
+    //scaleway instances
     SCW_ZONE: string;
-    KEY: string;
     SCW_API_URL: string;
     SCW_ACCESS_KEY: string;
     SCW_SECRET_KEY: string;
@@ -13,15 +13,13 @@ interface EnvConfig {
     SCW_IMAGE: string;
     SSH_KEY: string;
 
-    B2_APPLICATION_KEY_NAME: string;
-    B2_APPLICATION_KEY_ID: string;
-    B2_APPLICATION_KEY: string;
-
+    //mesh router backend for domain providing
+    MESH_ROUTER_BACKEND_URL: string;
+    MESH_ROUTER_BACKEND_API_KEY: string;
 }
 
 export const config: EnvConfig = {
     SCW_ZONE: process.env.SCW_ZONE,
-    KEY: process.env.KEY,
     SCW_API_URL: process.env.SCW_API_URL,
     SCW_ACCESS_KEY: process.env.SCW_ACCESS_KEY,
     SCW_SECRET_KEY: process.env.SCW_SECRET_KEY,
@@ -31,8 +29,7 @@ export const config: EnvConfig = {
     SCW_IMAGE: process.env.SCW_IMAGE,
     SSH_KEY: process.env.SSH_KEY,
 
-    B2_APPLICATION_KEY_NAME: process.env.B2_APPLICATION_KEY_NAME,
-    B2_APPLICATION_KEY_ID: process.env.B2_APPLICATION_KEY_ID,
-    B2_APPLICATION_KEY: process.env.B2_APPLICATION_KEY,
+    MESH_ROUTER_BACKEND_URL: process.env.MESH_ROUTER_BACKEND_URL,
+    MESH_ROUTER_BACKEND_API_KEY: process.env.MESH_ROUTER_BACKEND_API_KEY,
 };
 
