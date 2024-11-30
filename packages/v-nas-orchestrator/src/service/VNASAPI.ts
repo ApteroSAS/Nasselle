@@ -45,10 +45,24 @@ export function vnasAPI(expressApp: express.Application,instanceOperations:Scale
   router.post("/setup", authenticate, async (req:AuthUserRequest, res) => {
     try {
       const uid  = req.user.uid;
-      //TODO read the signature name and domain from the database
-      //TODO read uid from auth request
-      //TODO generate domain private key where di i do that before?
-      const { signature, name, domain } = req.body;
+      //TODO query the mesh router API to get name and domain for the user using the uid@nasselle.com
+
+      if(!keypair) {
+        const userDoc = await admin.firestore().collection('users').doc(uid).get();
+        //TODO IDea Use metamask to store the keypair?
+        const keyPair = await generateKeyPair();
+        //TODO store the keypair in a locked database
+        const data: UserFB = {
+          pubkey: keyPair.pub,
+          vnas: `setup-ok`,
+        }
+        // Store the public key in Firestore
+        await admin.firestore().collection('users').doc(uid).update(data as any);
+      }
+
+      const signature = await sign(keyPair.priv, uid);
+      console.log('Generated key pair and signature', keyPair, signature, uid);
+
       const result = await instanceOperations.setup({ signature, name, domain, uid });
       res.json(result);
     } catch (e) {

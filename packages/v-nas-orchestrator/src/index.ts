@@ -2,10 +2,8 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import express from "express";
 
-import { config } from "./EnvConfig.js";
 import { ScalewayInstanceOperations } from "./providers/scaleway/ScalewayInstanceOperations.js";
 import {vnasAPI} from "./service/VNASAPI.js";
-import {routerProxyAPI} from "./service/RouterAPIProxy.js";
 import {initializeFb} from "./firebase/firebaseIntegration.js";
 
 const expressApp = express();
@@ -26,7 +24,6 @@ expressApp.listen(port, () => {
     expressApp.use("/", router);
 
     vnasAPI(expressApp,instanceOperations);
-    routerProxyAPI(expressApp);
 
     console.log("Listening on " + port);
 });
