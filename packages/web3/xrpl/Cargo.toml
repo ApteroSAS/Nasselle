@@ -1,0 +1,8 @@
+# Placeholder for Cargo.toml workspace configuration
+
+[workspace]
+members = [
+    "contracts/storage_tokenization",
+    "contracts/compute_power_marketplace",
+    "contracts/incentives_rewards"
+]
