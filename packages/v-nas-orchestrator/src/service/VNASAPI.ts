@@ -2,6 +2,9 @@ import express from "express";
 import {config} from "../EnvConfig.js";
 import {ScalewayInstanceOperations} from "../providers/scaleway/ScalewayInstanceOperations.js";
 import {authenticate, AuthUserRequest} from "./ExpressAuthenticateMiddleWare.js";
+import {getDomainControlKeyPair} from "./KeyPairService.js";
+import {sign} from "../library/KeyLib.js";
+import {domainApiClient} from "./DomainAPIClient.js";
 
 export function vnasAPI(expressApp: express.Application,instanceOperations:ScalewayInstanceOperations) {
   let router = express.Router();
@@ -42,28 +45,28 @@ export function vnasAPI(expressApp: express.Application,instanceOperations:Scale
     }
   });
 
-  router.post("/setup", authenticate, async (req:AuthUserRequest, res) => {
+  router.post("/create", authenticate, async (req:AuthUserRequest, res) => {
     try {
       const uid  = req.user.uid;
-      //TODO query the mesh router API to get name and domain for the user using the uid@nasselle.com
+      const keyPair = await getDomainControlKeyPair(uid);
+      const signature = await sign(keyPair.privkey, uid);
+      let nsluid = `${uid}@nasselle.com`;
 
-      if(!keypair) {
-        const userDoc = await admin.firestore().collection('users').doc(uid).get();
-        //TODO IDea Use metamask to store the keypair?
-        const keyPair = await generateKeyPair();
-        //TODO store the keypair in a locked database
-        const data: UserFB = {
-          pubkey: keyPair.pub,
-          vnas: `setup-ok`,
+      let domainData = await domainApiClient.getDomainInfo(nsluid);
+
+      if(!domainData.publicKey ||keyPair.pubkey !== domainData.publicKey) {
+        await domainApiClient.setDomainInfo(nsluid,{
+          domainName:domainData.domainName,
+          publicKey:keyPair.pubkey,
+          serverDomain:domainData.serverDomain
+        });
+        domainData = await domainApiClient.getDomainInfo(nsluid);
+        if(!domainData.publicKey || keyPair.pubkey !== domainData.publicKey) {
+          throw new Error("Failed to update domain info");
         }
-        // Store the public key in Firestore
-        await admin.firestore().collection('users').doc(uid).update(data as any);
       }
 
-      const signature = await sign(keyPair.priv, uid);
-      console.log('Generated key pair and signature', keyPair, signature, uid);
-
-      const result = await instanceOperations.setup({ signature, name, domain, uid });
+      const result = await instanceOperations.setup({ signature, name:domainData.domainName, domain:domainData.serverDomain, uid });
       res.json(result);
     } catch (e) {
       console.log(e);
@@ -71,5 +74,5 @@ export function vnasAPI(expressApp: express.Application,instanceOperations:Scale
     }
   });
 
-  expressApp.use('/', router);
+  expressApp.use('/vnas/', router);
 }

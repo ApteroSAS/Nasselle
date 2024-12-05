@@ -1,7 +1,10 @@
 import express from "express";
 import admin from "firebase-admin";
 import {sign, verifySignature} from "../library/KeyLib.js";
-import {NSLRouterData} from "../DataBaseDTO/DataBaseNSLRouter.js";
+import {
+  NSL_ROUTER_COLLECTION,
+  NSLRouterData
+} from "../DataBaseDTO/DataBaseNSLRouter.js";
 import {authenticate, AuthUserRequest} from "./ExpressAuthenticateMiddleWare.js";
 
 /*
@@ -13,14 +16,12 @@ nsl-router/%uid%
 - publicKey:string
 */
 
-const NSL_ROUTER_COLLECTION = "nsl-router";
-
 /**
  * Checks the availability of a given domain name.
  * @param domain - The domain name to check.
  * @returns A promise that resolves to true if available, false otherwise.
  */
-async function checkAvailability(domain: string): Promise<boolean> {
+async function getDomain(domain: string): Promise<{uid:string,domain:NSLRouterData}> {
   if (!domain) {
     throw new Error("Domain name is required for availability check.");
   }
@@ -28,7 +29,14 @@ async function checkAvailability(domain: string): Promise<boolean> {
   const nslRouterCollection = admin.firestore().collection(NSL_ROUTER_COLLECTION);
   const querySnapshot = await nslRouterCollection.where('domainName', '==', domain).get();
 
-  return querySnapshot.empty;
+  if(querySnapshot.empty) {
+    return null;
+  } else {
+    return {
+      uid: querySnapshot.docs[0].id,
+      domain:querySnapshot.docs[0].data() as NSLRouterData
+    };
+  }
 }
 
 export function routerAPI(expressApp: express.Application) {
@@ -47,25 +55,18 @@ export function routerAPI(expressApp: express.Application) {
         return res.status(400).json({ error: "Domain name is required." });
       }
 
-      // Use the checkAvailability function
-      const isAvailable = await checkAvailability(domain);
+      // Use the getDomain function
+      const isAvailable = (await getDomain(domain)) == null;
 
       if (isAvailable) {
         return res.status(200).json({ available:true, message: "Domain name is available." });
       } else {
-        return res.status(409).json({ error: "Domain name is already in use." });
+        return res.status(209).json({ available:false, message: "Domain name is not available." });
       }
     } catch (e) {
       console.error("Error in /available/:domain:", e);
       return res.status(500).json({ error: e.toString() });
     }
-  });
-
-  router.post('/sign', (req, res) => {
-    let {key, msg} = req.body;
-    sign(key, msg).then((sig) => {
-      res.json({sig});
-    });
   });
 
   //used by mesh router
@@ -143,13 +144,19 @@ export function routerAPI(expressApp: express.Application) {
         return res.status(400).json({ error: "At least one of 'domainName', 'serverDomain', or 'publicKey' must be provided." });
       }
 
-      // If domainName is being updated, check its availability
-      if (domainName) {
-        const isAvailable = await checkAvailability(domainName);
+      // 2 possibility for domain update/create
+      // 1. domain creation => domain must be available
+      // 2. domain update => domain must be owned by the user (check with uid)
+      // note that 1 user = 0-1 domain (no multiple domain per user)
+      const domain = await getDomain(domainName);
+      const isAvailable = domain == null;
+      const isOwned = domain?.uid === userid; // Using optional chaining and strict equality
 
-        if (!isAvailable) {
-          return res.status(409).json({ error: "Domain name is already in use." });
-        }
+      if (!isAvailable && !isOwned) {
+        // If domain exists but isn't owned by the user
+        return res.status(domain ? 403 : 409).json({
+          error: domain ? "Domain name is not owned by you." : "Domain name is already in use."
+        });
       }
 
       const db = admin.firestore();
@@ -161,7 +168,6 @@ export function routerAPI(expressApp: express.Application) {
       if (domainName) updateData.domainName = domainName;
       if (serverDomain) updateData.serverDomain = serverDomain;
       if (publicKey) updateData.publicKey = publicKey;
-      if (source) updateData.source = source;
 
       // Update the user's document
       await userDocRef.set(updateData, { merge: true });

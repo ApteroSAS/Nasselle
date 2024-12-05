@@ -1,11 +1,11 @@
 import cors from "cors";
 import bodyParser from "body-parser";
 import express from "express";
-//import {version as BUILD_VERSION} from "../dockflow.json";
-//console.log(BUILD_VERSION);
 
 import {initializeFb} from "./firebase/firebaseIntegration.js";
 import {routerAPI} from "./services/RouterAPI.js";
+
+import 'dotenv/config';
 
 let expressApp = express();
 expressApp.use(bodyParser.json());
