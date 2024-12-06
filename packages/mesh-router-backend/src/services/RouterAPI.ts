@@ -148,7 +148,7 @@ export function routerAPI(expressApp: express.Application) {
       // 1. domain creation => domain must be available
       // 2. domain update => domain must be owned by the user (check with uid)
       // note that 1 user = 0-1 domain (no multiple domain per user)
-      const domain = await getDomain(domainName);
+      const domain = domainName ? await getDomain(domainName) : null;
       const isAvailable = domain == null;
       const isOwned = domain?.uid === userid; // Using optional chaining and strict equality
 

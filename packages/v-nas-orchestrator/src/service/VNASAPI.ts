@@ -2,9 +2,10 @@ import express from "express";
 import {config} from "../EnvConfig.js";
 import {ScalewayInstanceOperations} from "../providers/scaleway/ScalewayInstanceOperations.js";
 import {authenticate, AuthUserRequest} from "./ExpressAuthenticateMiddleWare.js";
-import {getDomainControlKeyPair} from "./KeyPairService.js";
+import {getDomainControlKeyPair} from "./KeyPairDataBase.js";
 import {sign} from "../library/KeyLib.js";
 import {domainApiClient} from "./DomainAPIClient.js";
+import {createVNAS} from "./VNASDataBase.js";
 
 export function vnasAPI(expressApp: express.Application,instanceOperations:ScalewayInstanceOperations) {
   let router = express.Router();
@@ -23,10 +24,17 @@ export function vnasAPI(expressApp: express.Application,instanceOperations:Scale
   router.post("/update", authenticate, async (req:AuthUserRequest, res) => {
     try {
       const uid  = req.user.uid;
-      //TODO read the signature name and domain from the database
-      //TODO read uid from auth request
-      const { signature, name, domain } = req.body;
-      const result = await instanceOperations.update({ signature, name, domain, uid });
+      const keyPair = await getDomainControlKeyPair(uid);
+      let nsluid = `${uid}@nasselle.com`;
+      const signature = await sign(keyPair.privkey, nsluid);
+      let domainData = await domainApiClient.getDomainInfo(nsluid);
+      const result = await instanceOperations.update({
+        signature,
+        signatureUid:nsluid,
+        name:domainData.domainName,
+        domain:domainData.serverDomain,
+        uid
+      });
       res.json(result);
     } catch (e) {
       console.log(e);
@@ -49,8 +57,8 @@ export function vnasAPI(expressApp: express.Application,instanceOperations:Scale
     try {
       const uid  = req.user.uid;
       const keyPair = await getDomainControlKeyPair(uid);
-      const signature = await sign(keyPair.privkey, uid);
       let nsluid = `${uid}@nasselle.com`;
+      const signature = await sign(keyPair.privkey, nsluid);
 
       let domainData = await domainApiClient.getDomainInfo(nsluid);
 
@@ -66,7 +74,14 @@ export function vnasAPI(expressApp: express.Application,instanceOperations:Scale
         }
       }
 
-      const result = await instanceOperations.setup({ signature, name:domainData.domainName, domain:domainData.serverDomain, uid });
+      const result = await instanceOperations.setup({
+        signature,
+        signatureUid:nsluid,
+        name:domainData.domainName,
+        domain:domainData.serverDomain,
+        uid
+      });
+      await createVNAS(uid, result);
       res.json(result);
     } catch (e) {
       console.log(e);
