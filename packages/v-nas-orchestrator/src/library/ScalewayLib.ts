@@ -94,8 +94,21 @@ export async function runDockerComposeSetup(uid: string, localComposePath: strin
     }
 }
 
-// Helper function to create a temporary Docker Compose file
+export async function getInstance(uid: string):Promise<string | null> {
+    try {
+        const instances = await getInstanceByUID(uid);
+        if (instances.length !== 1) {
+            return null;
+        }
+        const instance = instances[0];
+        return instance.id;
+    } catch (error) {
+        return null;
+    }
+}
 
+// Helper function to create a temporary Docker Compose file
+//@deprecated will use ssh fom the browser for end to end control of the VM
 async function sshConnect(uid: string): Promise<NodeSSH> {
     const instances = await getInstanceByUID(uid);
     try {
