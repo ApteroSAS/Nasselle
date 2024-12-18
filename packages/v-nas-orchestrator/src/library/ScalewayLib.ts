@@ -31,16 +31,83 @@ export async function createInstance(uid: string): Promise<Instance> {
     return instance;
 }
 
+async function deleteFlexibleIP(ipId: string): Promise<void> {
+    await axios.delete(
+      `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/ips/${ipId}`,
+      {
+          headers: {
+              'X-Auth-Token': config.SCW_SECRET_KEY,
+              'Content-Type': 'application/json'
+          }
+      }
+    );
+}
+
+async function deleteVolume(volumeId: string): Promise<void> {
+    await axios.delete(
+      `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/volumes/${volumeId}`,
+      {
+          headers: {
+              'X-Auth-Token': config.SCW_SECRET_KEY,
+              'Content-Type': 'application/json'
+          }
+      }
+    );
+}
+
+async function getInstanceIPs(instanceId: string): Promise<string[]> {
+    const response = await axios.get(
+      `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/ips`,
+      {
+          headers: {
+              'X-Auth-Token': config.SCW_SECRET_KEY,
+              'Content-Type': 'application/json'
+          },
+          params: {
+              server: instanceId
+          }
+      }
+    );
+    return response.data.ips.map((ip: any) => ip.id);
+}
+
 export async function deleteInstance(uid: string): Promise<void> {
-    //try {
-        const instances = await getInstanceByUID(uid);
-        for (const instance of instances) {
-            await actionOnInstanceBySid(instance.id, "terminate");
-            // await deleteInstanceBySid(instance.id);
+    const instances = await getInstances(uid, false); // Get all instances including terminated ones
+
+    for (const instance of instances) {
+        try {
+            // Step 1: Get and delete all attached IPs
+            const ipIds = await getInstanceIPs(instance.id);
+            for (const ipId of ipIds) {
+                await deleteFlexibleIP(ipId);
+                console.log(`Deleted IP ${ipId} for instance ${instance.id}`);
+            }
+
+            // Step 2: Delete all attached volumes
+            const volumes = Object.values(instance.volumes || {});
+            for (const volume of volumes) {
+                // Wait for instance to be fully terminated before deleting volumes
+                await actionOnInstanceBySid(instance.id, "terminate");
+                await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
+
+                try {
+                    await deleteVolume(volume.id);
+                    console.log(`Deleted volume ${volume.id} for instance ${instance.id}`);
+                } catch (error: any) {
+                    if (error.response?.status === 404) {
+                        console.log(`Volume ${volume.id} already deleted`);
+                    } else {
+                        throw error;
+                    }
+                }
+            }
+
+            console.log(`Successfully cleaned up instance ${instance.id}`);
+        } catch (error) {
+            console.error(`Error cleaning up instance ${instance.id}:`, error);
+            throw error;
         }
-    /*}catch (e) {
-        console.error(e);//just log the error
-    }*/
+    }
 }
 
 export async function executeCommand(uid: string, command: string): Promise<void> {
@@ -60,7 +127,7 @@ export async function executeCommand(uid: string, command: string): Promise<void
 }
 
 export async function actionOnInstance(uid: string, action: 'poweron' | 'poweroff' | 'reboot' | 'terminate'): Promise<void> {
-    const instances = await getInstanceByUID(uid);
+    const instances = await getInstances(uid);
     if (instances.length !== 1) {
         console.error(instances);
         throw new Error(`Expected 1 instance but got ${instances.length}`);
@@ -94,23 +161,51 @@ export async function runDockerComposeSetup(uid: string, localComposePath: strin
     }
 }
 
-export async function getInstance(uid: string):Promise<string | null> {
-    try {
-        const instances = await getInstanceByUID(uid);
-        if (instances.length !== 1) {
-            return null;
-        }
-        const instance = instances[0];
-        return instance.id;
-    } catch (error) {
-        return null;
+export async function getInstances(uid: string,filtered:boolean = true):Promise<Instance[]> {
+    // Fetch instances filtered by name using the UID (assuming the UID is part of the instance name)
+    const response = await axios.get(
+      `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers?name=${servername(uid)}`,
+      {
+          headers: {
+              'X-Auth-Token': config.SCW_SECRET_KEY,
+              'Content-Type': 'application/json'
+          }
+      }
+    );
+
+    let instances = response.data.servers;
+
+    // If no instances are found
+    if (instances.length === 0) {
+        return [];
     }
+
+    // Find the exact instance by checking the UID if necessary
+    const instance = instances.find((server: any) => server.name === servername(uid));
+
+    if (!instance) {
+        throw new Error(`Instance with UID ${uid} not found`);
+    }
+
+    //filter out the instances with state_detail: 'terminating' || 'terminated' or  state: 'deleted'
+    if(filtered) {
+        instances = instances.filter((server: any) =>
+          server.state_detail !== 'terminating' &&
+          server.state_detail !== 'terminated' &&
+          server.state !== 'deleted' &&
+          server.state !== 'stopping' &&
+          server.state !== 'stopped in place' &&
+          server.state !== 'stopped' &&
+          server.state !== 'locked'
+        );
+    }
+    return instances;
 }
 
 // Helper function to create a temporary Docker Compose file
 //@deprecated will use ssh fom the browser for end to end control of the VM
 async function sshConnect(uid: string): Promise<NodeSSH> {
-    const instances = await getInstanceByUID(uid);
+    const instances = await getInstances(uid);
     try {
         if (instances.length !== 1) {
             throw new Error(`Expected 1 instance but got ${instances.length}`);
@@ -158,25 +253,6 @@ async function getInstanceDetails(instanceId: string):Promise<Instance> {
     return response.data.server;
 }
 
-async function deleteInstanceBySid(serverId: string): Promise<void> {
-    try {
-        // Perform DELETE request to delete the instance
-        await axios.delete(
-            `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers/${serverId}`,
-            {
-                headers: {
-                    'X-Auth-Token': config.SCW_SECRET_KEY,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
-        console.log(`Instance with Server ID ${serverId} deleted successfully.`);
-    } catch (error) {
-        console.error(`Failed to delete instance with Server ID ${serverId}:`, error);
-        throw new Error(`Error deleting instance with Server ID ${serverId}`);
-    }
-}
-
 async function actionOnInstanceBySid(instanceId: string, action: 'poweron' | 'poweroff' | 'reboot' | 'terminate'): Promise<void> {
     await axios.post(
         `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers/${instanceId}/action`, {action,},
@@ -208,43 +284,4 @@ async function reserveFlexibleIP(server_uuid: string): Promise<string> {
 
     const ip = response.data.ip;
     return ip.id;
-}
-
-async function getInstanceByUID(uid: string):Promise<Instance[]> {
-    // Fetch instances filtered by name using the UID (assuming the UID is part of the instance name)
-    const response = await axios.get(
-        `${config.SCW_API_URL}/instance/v1/zones/${config.SCW_ZONE}/servers?name=${servername(uid)}`,
-        {
-            headers: {
-                'X-Auth-Token': config.SCW_SECRET_KEY,
-                'Content-Type': 'application/json'
-            }
-        }
-    );
-
-    let instances = response.data.servers;
-
-    // If no instances are found
-    if (instances.length === 0) {
-        throw new Error(`No instances found with name filter "${uid}"`);
-    }
-
-    // Find the exact instance by checking the UID if necessary
-    const instance = instances.find((server: any) => server.name === servername(uid));
-
-    if (!instance) {
-        throw new Error(`Instance with UID ${uid} not found`);
-    }
-
-    //filter out the instances with state_detail: 'terminating' || 'terminated' or  state: 'deleted'
-    instances = instances.filter((server: any) =>
-      server.state_detail !== 'terminating' &&
-      server.state_detail !== 'terminated' &&
-      server.state !== 'deleted' &&
-      server.state !== 'stopping' &&
-      server.state !== 'stopped in place' &&
-      server.state !== 'stopped' &&
-      server.state !== 'locked'
-    );
-    return instances;
 }

@@ -1,5 +1,4 @@
 import express from "express";
-import {config} from "../EnvConfig.js";
 import {ScalewayInstanceOperations} from "../providers/scaleway/ScalewayInstanceOperations.js";
 import {authenticate, AuthUserRequest} from "./ExpressAuthenticateMiddleWare.js";
 

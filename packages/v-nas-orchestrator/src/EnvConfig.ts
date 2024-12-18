@@ -16,6 +16,10 @@ interface EnvConfig {
     //mesh router backend for domain providing
     MESH_ROUTER_BACKEND_URL: string;
     MESH_ROUTER_BACKEND_API_KEY: string;
+
+    //sendgrid
+    SENDGRID_API_KEY: string;
+    SENDMAIL_FROM_EMAIL: string;
 }
 
 export const config: EnvConfig = {
@@ -31,5 +35,7 @@ export const config: EnvConfig = {
 
     MESH_ROUTER_BACKEND_URL: process.env.MESH_ROUTER_BACKEND_URL,
     MESH_ROUTER_BACKEND_API_KEY: process.env.MESH_ROUTER_BACKEND_API_KEY,
-};
 
+    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+    SENDMAIL_FROM_EMAIL: process.env.SENDMAIL_FROM_EMAIL
+};
