@@ -17,3 +17,6 @@
 	path = packages/v-nas-dashboard
 	url = https://github.com/ApteroSAS/v-nas-dashboard.git
 	branch = main
+[submodule "packages/settings-center-app"]
+	path = packages/settings-center-app
+	url = https://github.com/ApteroSAS/settings-center-app
