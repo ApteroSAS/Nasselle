@@ -142,12 +142,12 @@ export async function runDockerComposeSetup(uid: string, localComposePath: strin
         await ssh.putFile(localComposePath, remoteComposePath);
         console.log('compose file send!');
 
-        let result = await ssh.execCommand(`docker compose -f ${remoteComposePath} -p nasselle pull`);
+        let result = await ssh.execCommand(`docker compose -f ${remoteComposePath} pull`);
         if (result.code !== 0) {
             throw new Error(`stderr: ${result.stderr}`);
         }
         console.log('compose pull done!');
-        result = await ssh.execCommand(`docker compose -f ${remoteComposePath} -p nasselle up -d`);
+        result = await ssh.execCommand(`docker compose -f ${remoteComposePath} up -d`);
         if (result.code !== 0) {
             throw new Error(`stderr: ${result.stderr}`);
         }

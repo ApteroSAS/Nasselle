@@ -7,6 +7,7 @@ import {vnasAPI} from "./service/VNASAPI.js";
 import {initializeFb} from "./firebase/firebaseIntegration.js";
 import {sendEmail} from "./library/Sendgrid.js";
 import {config} from "./EnvConfig.js";
+import {pingAPI} from "./service/pingAPI.js";
 
 const expressApp = express();
 expressApp.use(bodyParser.json());
@@ -26,6 +27,7 @@ expressApp.listen(port, async() => {
     expressApp.use("/", router);
 
     vnasAPI(expressApp,instanceOperations);
+    pingAPI(expressApp);
 
     // send a mail to admin to notify that the service is working and hav been created
     if(config.SENDMAIL_FROM_EMAIL && process.env.PROD){

@@ -7,7 +7,7 @@ import {
   runDockerComposeSetup, getInstances,
 } from "../../library/ScalewayLib.js";
 import {InstanceOperations} from "../InstanceOperations.js";
-import {getDomainControlKeyPair} from "../../service/KeyPairDataBase.js";
+import {deleteDomainControlKeyPair, getDomainControlKeyPair} from "../../service/KeyPairDataBase.js";
 import {sign} from "../../library/KeyLib.js";
 import {domainApiClient} from "../../service/DomainAPIClient.js";
 import {sendEmail} from "../../library/Sendgrid.js";
@@ -16,8 +16,12 @@ import {config} from "../../EnvConfig.js";
 export class ScalewayInstanceOperations implements InstanceOperations {
   private operationPromises = new Map<string, Promise<any>>();
 
-  async setup(uid: string): Promise<string> {
+  public async setup(uid: string): Promise<string> {
     return this.withWIPProtection(uid, async () => {
+
+      ///////////////////////////////////
+      // Domain Setup and verifications
+      ///////////////////////////////////
       const keyPair = await getDomainControlKeyPair(uid);
       let signatureUid = `${uid}@nasselle.com`;
       const signature = await sign(keyPair.privkey, signatureUid);
@@ -36,34 +40,43 @@ export class ScalewayInstanceOperations implements InstanceOperations {
         }
       }
 
-      console.log(`Creating V-NAS for ${domainData.domainName}@${domainData.serverDomain} with uid ${uid} / ${signatureUid}`);
-      const composeLocalPath = await createTmpDockerComposeFile(domainData.serverDomain, domainData.domainName, signatureUid, signature);
+      ///////////////////////////////////
+      // Cleanup
+      ///////////////////////////////////
       try {
         await deleteInstance(uid); // in case it already exists
       } catch (e) {
         /*ignore: if nothing to delete*/
       }
+
+      ///////////////////////////////////
+      // Instance Creation
+      ///////////////////////////////////
+      console.log(`Creating V-NAS for ${domainData.domainName}@${domainData.serverDomain} with uid ${uid} / ${signatureUid}`);
+      const composeLocalPath = await createTmpDockerComposeFile(domainData.serverDomain, domainData.domainName, signatureUid, signature);
+
       let instance = await createInstance(uid);
-      await runDockerComposeSetup(uid, composeLocalPath, '/compose.yml');
-      await this.status(uid);
+      await runDockerComposeSetup(uid, composeLocalPath, '/pcs/compose.yml');
+      await this.statusInternal(uid);
       return instance.id;
     });
   }
 
-  async delete(uid: string): Promise<string> {
+  public async delete(uid: string): Promise<string> {
     return this.withWIPProtection(uid, async () => {
       console.log(`Deleting V-NAS with UID ${uid}`);
       let signatureUid = `${uid}@nasselle.com`;
 
       await deleteInstance(uid);
       await domainApiClient.deleteDomainInfo(signatureUid);
+      await deleteDomainControlKeyPair(uid);
 
       await new Promise((resolve) => setTimeout(resolve, 5000));
       return "done";
     });
   }
 
-  async reboot(uid: string): Promise<string> {
+  public async reboot(uid: string): Promise<string> {
     return this.withWIPProtection(uid, async () => {
       console.log(`Rebooting V-NAS with UID ${uid}`);
       await actionOnInstance(uid, 'reboot');
@@ -73,8 +86,8 @@ export class ScalewayInstanceOperations implements InstanceOperations {
     });
   }
 
-  async status(uid: string): Promise<string> {
-    return this.withWIPProtection(uid, async () => {
+
+  private async statusInternal(uid: string): Promise<string> {
       console.log(`Checking integrity of V-NAS with UID ${uid}`);
 
       let instances = await getInstances(uid,false);
@@ -90,6 +103,11 @@ export class ScalewayInstanceOperations implements InstanceOperations {
       }
       const instance = instances[0];
       return instance.id;
+  }
+
+  public async status(uid: string): Promise<string> {
+    return this.withWIPProtection(uid, async () => {
+      return this.statusInternal(uid);
     });
   }
 

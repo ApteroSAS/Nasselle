@@ -31,3 +31,7 @@ export async function getDomainControlKeyPair(uid: string): Promise<DomainEntry>
     };
   });
 }
+
+export async function deleteDomainControlKeyPair(uid: string): Promise<void> {
+  await admin.firestore().collection(DomainCollection).doc(uid).delete();
+}
